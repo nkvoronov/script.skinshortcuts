@@ -126,7 +126,7 @@ class NodeFunctions():
 
             if isFolder:
                 # Add it to our list of nodes
-                nodes[ int( index ) ] = [ label, icon, origFolder, "folder", origIndex, mediaType ]
+                nodes[ int( index ) ] = [ label, icon, origFolder, __language__( 32115 ), origIndex, mediaType ]
             else:
                 # Check for a path
                 path = root.find( "path" )
@@ -138,10 +138,10 @@ class NodeFunctions():
                 group = root.find( "group" )
                 if group is None:
                     # Add it as an item
-                    nodes[ int( index ) ] = [ label, icon, origPath, "item", origIndex, mediaType ]
+                    nodes[ int( index ) ] = [ label, icon, origPath, __language__( 32116 ), origIndex, mediaType ]
                 else:
                     # Add it as grouped
-                    nodes[ int( index ) ] = [ label, icon, origPath, "grouped", origIndex, mediaType ]
+                    nodes[ int( index ) ] = [ label, icon, origPath, __language__( 32117 ), origIndex, mediaType ]
         except:
             print_exc()
             

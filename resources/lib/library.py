@@ -318,7 +318,7 @@ class LibraryFunctions():
                 returnList.append( shortcutItem )
                 #returnList.append( self._create( [node.text, node.attrib.get( "label" ), node.attrib.get( "type" ), {"icon": node.attrib.get( "icon" )}] ) )
             if node.tag == "node" and flat == False:
-                returnList.append( self._create( ["||NODE||" + str( count ), node.attrib.get( "label" ), "", {"icon": "DefaultFolder.png"}] ) )
+                returnList.append( self._get_icon_overrides( DATA._get_overrides_skin(), self._create( ["||NODE||" + str( count ), node.attrib.get( "label" ), "", {"icon": "DefaultFolder.png"}] ), "" ) )
                 
         return returnList
                 
@@ -1356,18 +1356,18 @@ class LibraryFunctions():
         # Shortcut to go 'up'
         if len( label ) == 1:
             # This is the root, create a link to go back to selectShortcut
-            listitem = self._create( [ "::UP::", "..", "", {} ] )
+            listitem = self._create( [ "::UP::", "..", "", {"icon":"DefaultFolderBack.png"} ] )
         else:
             # This isn't the root, create a link to go up the heirachy
-            listitem = self._create( [ "::BACK::", "..", "", {} ] )
-        listings.append( listitem )
+            listitem = self._create( [ "::BACK::", "..", "", {"icon":"DefaultFolderBack.png"} ] )
+        listings.append( self._get_icon_overrides( tree, listitem, "" ) )
             
         
         # Default action - create shortcut (do not show when we're looking at the special entries from skinhelper service)
         if not "script.skin.helper.service" in location:
-            createLabel = "32058"
+            createLabel = __language__( 32058 )
             if isWidget:
-                createLabel = "32100"
+                createLabel = __language__( 32100 )
             listings.append( self._get_icon_overrides( tree, self._create( ["::CREATE::", createLabel, "", {}] ), "" ) )
                 
         log( "Getting %s - %s" %( dialogLabel, try_decode( location ) ) )
@@ -1942,7 +1942,7 @@ class LibraryFunctions():
 
     def selectShortcut( self, group = "", custom = False, availableShortcuts = None, windowTitle = None, showNone = False, currentAction = "", grouping = None ):
         # This function allows the user to select a shortcut
-
+        
         isWidget = False
         if grouping == "widget":
             isWidget = True
@@ -1962,7 +1962,8 @@ class LibraryFunctions():
 
         if group != "":
             # Add a link to go 'up'
-            availableShortcuts.insert( 0, self._create( ["::BACK::", "..", "", {}] ) )
+            additem = self._create( ["::BACK::", "..", "", {"icon":"DefaultFolderBack.png"}] )
+            availableShortcuts.insert( 0, self._get_icon_overrides( DATA._get_overrides_skin(), additem, "" ) )
 
         # Show select dialog
         getMore = self._allow_install_widget_provider( None, isWidget, self.allowWidgetInstall )
