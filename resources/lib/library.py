@@ -1958,7 +1958,7 @@ class LibraryFunctions():
             availableShortcuts.insert( 0, self._create(["::NONE::", __language__(32053), "", {"icon":"DefaultAddonNone.png"}] ) )
             
         if custom is not False and group == "":
-            availableShortcuts.append( self._create(["||CUSTOM||", __language__(32024), "", {}] ) )
+            availableShortcuts.append( self._create(["||CUSTOM||", __language__(32024), "", {"icon":"DefaultFolder.png"}] ) )
 
         if group != "":
             # Add a link to go 'up'
