@@ -501,3 +501,19 @@ msgctxt "#32119"
 msgid "grouped"
 msgstr ""
 
+msgctxt "#33000"
+msgid "Settings"
+msgstr ""
+
+msgctxt "#33001"
+msgid "Never hide PVR shortcuts"
+msgstr ""
+
+msgctxt "#33002"
+msgid "Share menu between compatible skins"
+msgstr ""
+
+msgctxt "#33003"
+msgid "Enable debug logging"
+msgstr ""
+

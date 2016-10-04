@@ -501,3 +501,19 @@ msgctxt "#32119"
 msgid "grouped"
 msgstr "группа"
 
+msgctxt "#33000"
+msgid "Settings"
+msgstr "Настройки"
+
+msgctxt "#33001"
+msgid "Never hide PVR shortcuts"
+msgstr "Никогда не скрывать ярлыки PVR"
+
+msgctxt "#33002"
+msgid "Share menu between compatible skins"
+msgstr "Делится меню между совместимыми обложками"
+
+msgctxt "#33003"
+msgid "Enable debug logging"
+msgstr "Разрешить ведение журнала отладки"
+
