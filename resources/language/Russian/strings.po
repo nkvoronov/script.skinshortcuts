@@ -171,7 +171,7 @@ msgstr "Сбросить все элементы меню"
 
 msgctxt "#32038"
 msgid "Are you sure you want to reset all menu items back to default?"
-msgstr "Вы действительно хотите сбросить все меню на настройки по умолчанию?"
+msgstr "Вы действительно хотите сбросить все меню до значений по умолчанию ?"
 
 #. ::MENUNAME:: is used internally and should NOT be translated :)
 msgctxt "#32039"
