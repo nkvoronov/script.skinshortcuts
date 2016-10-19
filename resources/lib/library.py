@@ -319,7 +319,7 @@ class LibraryFunctions():
         tree = DATA._get_overrides_skin()
         for item in returnList:
             item = self._get_icon_overrides( tree, item, None )
-                
+
         return returnList
                 
     def retrieveContent( self, content ):
@@ -615,7 +615,7 @@ class LibraryFunctions():
         if icon.startswith( "$" ):
             displayIcon = xbmc.getInfoLabel( icon )
             iconIsVar = True
-        
+                        
         # If the skin doesn't have the icon, replace it with DefaultShortcut.png
         if ( not displayIcon or not xbmc.skinHasImage( displayIcon ) ) and not iconIsVar:
             if not usedDefaultThumbAsIcon:
@@ -906,28 +906,28 @@ class LibraryFunctions():
 
         
     def musiclibrary( self ):
-            # Try loading custom nodes first
-            try:
-                if self._parse_libraryNodes( "music", "custom" ) == False:
-                    log( "Failed to load custom music nodes" )
-                    self._parse_libraryNodes( "music", "default" )
-            except:
+        # Try loading custom nodes first
+        try:
+            if self._parse_libraryNodes( "music", "custom" ) == False:
                 log( "Failed to load custom music nodes" )
+                self._parse_libraryNodes( "music", "default" )
+        except:
+            log( "Failed to load custom music nodes" )
+            print_exc()
+            try:
+                # Try loading default nodes
+                self._parse_libraryNodes( "music", "default" )
+            except:
+                # Empty library
+                log( "Failed to load default music nodes" )
                 print_exc()
-                try:
-                    # Try loading default nodes
-                    self._parse_libraryNodes( "music", "default" )
-                except:
-                    # Empty library
-                    log( "Failed to load default music nodes" )
-                    print_exc()
-
-            # Do a JSON query for upnp sources (so that they'll show first time the user asks to see them)
-            if self.loaded[ "upnp" ][ 0 ] == False:
-                json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Files.GetDirectory", "params": { "properties": ["title", "file", "thumbnail"], "directory": "upnp://", "media": "files" } }')
-                self.loaded[ "upnp" ][ 0 ] = True
-                
-            self.addToDictionary( "music", listitems )
+        
+        # Do a JSON query for upnp sources (so that they'll show first time the user asks to see them)
+        if self.loaded[ "upnp" ][ 0 ] == False:
+            json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Files.GetDirectory", "params": { "properties": ["title", "file", "thumbnail"], "directory": "upnp://", "media": "files" } }')
+            self.loaded[ "upnp" ][ 0 ] = True
+            
+        self.addToDictionary( "music", listitems )
     
     def librarysources( self ):
         # Add video sources
@@ -1933,7 +1933,7 @@ class LibraryFunctions():
 
     def selectShortcut( self, group = "", custom = False, availableShortcuts = None, windowTitle = None, showNone = False, currentAction = "", grouping = None ):
         # This function allows the user to select a shortcut
-        
+
         isWidget = False
         if grouping == "widget":
             isWidget = True
