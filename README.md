@@ -1,11 +1,11 @@
-#Skin Shortcuts - 1.0.12
+#Skin Shortcuts - 1.0.13
 
 script.skinshortcuts was written with the intention of making user customizable shortcuts on the home page easier for skinners.
 
 
 ## What's New for Skinners
 
-#### Version 1.0.12 - repo version
+#### Version 1.0.13 - repo version
 
 - Skinners can now set that their skin should not use the users shared additional submenus - [Read More](./resources/docs/started/Getting Started.md#shared-additioanl-submenu)
 - Submenu template improvements - [Read More](./resources/docs/advanced/Templates.md#sub-menu-template)
@@ -59,7 +59,7 @@ It's highly recommended to take time to read through these documents before you 
 
 If you require any assistance post on the Kodi forum and I'll do my best to assist:
 
-[http://forum.kodi.org/showthread.php?tid=178294](http://forum.kodi.org/showthread.php?tid=178294)
+[http://forum.kodi.tv/showthread.php?tid=178294](http://forum.kodi.tv/showthread.php?tid=178294)
 
 ## Documentation for different versions
 
