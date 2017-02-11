@@ -313,8 +313,8 @@ class LibraryFunctions():
                 returnList.append( shortcutItem )
                 #returnList.append( self._create( [node.text, node.attrib.get( "label" ), node.attrib.get( "type" ), {"icon": node.attrib.get( "icon" )}] ) )
             if node.tag == "node" and flat == False:
-                returnList.append( self._get_icon_overrides( DATA._get_overrides_skin(), self._create( ["||NODE||" + str( count ), node.attrib.get( "label" ), "", {"icon": "DefaultFolder.png"}] ), "" ) )
-
+                returnList.append( self._create( ["||NODE||" + str( count ), node.attrib.get( "label" ), "", {"icon": "DefaultFolder.png"}] ) )
+                
         # Override icons
         tree = DATA._get_overrides_skin()
         for item in returnList:
@@ -614,6 +614,10 @@ class LibraryFunctions():
         iconIsVar = False
         if icon.startswith( "$" ):
             displayIcon = xbmc.getInfoLabel( icon )
+            iconIsVar = True
+        
+        #special treatment for image resource addons
+        if icon.startswith("resource://"):
             iconIsVar = True
                         
         # If the skin doesn't have the icon, replace it with DefaultShortcut.png
@@ -1909,13 +1913,16 @@ class LibraryFunctions():
             json_result = json_response['result']['files']
             for item in json_result:
                 label = item["label"]
-                image = None
-                if item.has_key("art"):
+                image = ""
+                if item.get("art"):
                     if item["art"].has_key("fanart"):
                         image = item["art"]["fanart"]
-                if item.get("file",None).lower().endswith(".jpg") or item.get("file",None).lower().endswith(".png"):
+                    elif item["art"].has_key("thumb"):
+                        image = item["art"]["thumb"]
+                if not image and item.get("thumbnail"):
+                    image = item["thumbnail"]
+                if not image and item.get("file",""):
                     image = item["file"]
-                    label = label.replace(".jpg","").replace(".png","")
                 if image:
                     image = urllib.unquote(image).decode('utf8')
                     if "$INFO" in image:
@@ -1923,6 +1930,7 @@ class LibraryFunctions():
                         if image.endswith("/"):
                             image = image[:-1]
                     images.append( [image, label ] )
+                    
         return images
 
 # =====================================
