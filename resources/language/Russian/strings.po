@@ -490,14 +490,26 @@ msgid "The skin you are using does not support adding items directly to the main
 msgstr "Обложка не поддерживает добавление элементов непосредственно в главное меню"
 
 msgctxt "#32117"
+msgid "Disable shortcut"
+msgstr "Запертить ярлык"
+
+msgctxt "#32118"
+msgid "Smart shortcuts"
+msgstr "Умные ярлыки"
+
+msgctxt "#32119"
+msgid "Default widgets"
+msgstr "Виджеты по умолчанию"
+
+msgctxt "#32217"
 msgid "folder"
 msgstr "папка"
 
-msgctxt "#32118"
+msgctxt "#32218"
 msgid "item"
 msgstr "элемент"
 
-msgctxt "#32119"
+msgctxt "#32219"
 msgid "grouped"
 msgstr "группа"
 
