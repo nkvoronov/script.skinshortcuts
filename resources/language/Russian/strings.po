@@ -304,11 +304,11 @@ msgstr "UPnP"
 
 msgctxt "#32071"
 msgid "Customize Main Menu"
-msgstr "Настроить главное меню"
+msgstr "Настройка главного меню"
 
 msgctxt "#32072"
 msgid "Customize Submenu"
-msgstr "Настроить подменю"
+msgstr "Настройка подменю"
 
 msgctxt "#32073"
 msgid "Music Source"
