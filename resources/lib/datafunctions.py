@@ -906,6 +906,9 @@ class DataFunctions():
             return "System.HasMediaDVD"
         elif action.startswith( "activatewindow(eventlog" ):
             return "system.getbool(eventlog.enabled)"
+        elif action.startswith( "activatewindow(games" ):
+            if int( KODIVERSION ) >= 18:
+                return "System.GetBool(gamesgeneral.enable)"
             
         return ""
 
