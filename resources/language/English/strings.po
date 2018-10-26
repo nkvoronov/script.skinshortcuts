@@ -529,3 +529,7 @@ msgctxt "#33003"
 msgid "Enable debug logging"
 msgstr ""
 
+msgctxt "#33010"
+msgid "Game Add-On"
+msgstr ""
+

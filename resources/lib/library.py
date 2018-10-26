@@ -99,6 +99,7 @@ class LibraryFunctions():
                 "addon-program-plugin":None,
                 "addon-video":None,
                 "addon-audio":None,
+                "addon-game":None,
                 "addon-image":None,
                 "favourite":None,
                 "settings":None,
@@ -409,7 +410,7 @@ class LibraryFunctions():
             self.loadLibrary( "radiolibrary" )
         if content == "playlist-video" or content == "playlist-audio":
             self.loadLibrary( "playlists" )
-        if content == "addon-program" or content == "addon-video" or content == "addon-audio" or content == "addon-image":
+        if content == "addon-program" or content == "addon-video" or content == "addon-audio" or content == "addon-image" or content == "addon-game":
             self.loadLibrary( "addons" )
         if content == "favourite":
             self.loadLibrary( "favourites" )
@@ -1134,8 +1135,9 @@ class LibraryFunctions():
         videoItems = {}
         audioItems = {}
         imageItems = {}
+        gameItems = {}
                     
-        contenttypes = [ ( "executable", executableItems ),  ( "video", videoItems ), ( "audio", audioItems ), ( "image", imageItems ) ]
+        contenttypes = [ ( "executable", executableItems ),  ( "video", videoItems ), ( "audio", audioItems ), ( "image", imageItems ), ( "game", gameItems ) ]
         for contenttype, listitems in contenttypes:
             #listitems = {}
             if contenttype == "executable":
@@ -1150,6 +1152,9 @@ class LibraryFunctions():
             elif contenttype == "image":
                 contentlabel = LANGUAGE(32012)
                 shortcutType = "::SCRIPT::32012"
+            elif contenttype == "game":
+                contentlabel = LANGUAGE(33010)
+                shortcutType = "::SCRIPT::33010"
                 
             json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Addons.Getaddons", "params": { "content": "%s", "properties": ["name", "path", "thumbnail", "enabled"] } }' % contenttype)
             json_query = unicode(json_query, 'utf-8', errors='ignore')
@@ -1185,7 +1190,7 @@ class LibraryFunctions():
                             provides = self.hasPluginEntryPoint( item[ "path" ] )
                             for content in provides:
                                 # For each content that it provides, add it to the add-ons for that type
-                                contentData = { "video": [ "::SCRIPT::32010", videoItems ], "audio": [ "::SCRIPT::32011", audioItems ], "image": [ "::SCRIPT::32012", imageItems ], "executable": [ "::SCRIPT::32009", executableItems ] }
+                                contentData = { "video": [ "::SCRIPT::32010", videoItems ], "audio": [ "::SCRIPT::32011", audioItems ], "image": [ "::SCRIPT::32012", imageItems ], "executable": [ "::SCRIPT::32009", executableItems ], "game": [ "::SCRIPT::33010", gameItems ] }
                                 if content in contentData:
                                     # Add it as a plugin in the relevant category
                                     otherItem = self._create([path, item['name'] + "  >", contentData[ content ][ 0 ], {"icon": "DefaultAddon.png", "thumb": thumb} ])
@@ -1212,6 +1217,9 @@ class LibraryFunctions():
             elif contenttype == "image":
                 self.addToDictionary( "addon-image", self.sortDictionary( listitems ) )
                 log( " - " + str( len( listitems ) ) + " image add-ons found" )
+            elif contenttype == "game":
+                self.addToDictionary( "addon-game", self.sortDictionary( listitems ) )
+                log( " - " + str( len( listitems ) ) + " game add-ons found" )
 
     def hasPluginEntryPoint( self, path ):
         # Check if an addon has a plugin entry point by parsing its addon.xml file
