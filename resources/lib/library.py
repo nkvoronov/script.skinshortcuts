@@ -1156,13 +1156,16 @@ class LibraryFunctions():
                 contentlabel = LANGUAGE(33010)
                 shortcutType = "::SCRIPT::33010"
                 
-            json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Addons.Getaddons", "params": { "content": "%s", "properties": ["name", "path", "thumbnail", "enabled"] } }' % contenttype)
+            if contenttype == "game":
+                json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Addons.Getaddons", "params": { "type": "kodi.gameclient", "properties": ["name", "path", "thumbnail", "enabled"] } }')
+            else:
+                json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Addons.Getaddons", "params": { "content": "%s", "properties": ["name", "path", "thumbnail", "enabled"] } }' % contenttype)
             json_query = unicode(json_query, 'utf-8', errors='ignore')
             json_response = simplejson.loads(json_query)
             
             if json_response.has_key('result') and json_response['result'].has_key('addons') and json_response['result']['addons'] is not None:
                 for item in json_response['result']['addons']:
-                    if item['enabled'] == True:                            
+                    if item['enabled'] == True:
                         path = "RunAddOn(" + item['addonid'].encode('utf-8') + ")"
                         action = None
                         thumb = "DefaultAddon.png"
