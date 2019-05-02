@@ -16,6 +16,12 @@ msgstr ""
 "Language: en\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+msgctxt "Addon Description"
+msgid ""
+"Add-on for skins to provide simple managing and listing of user shortcuts "
+"(requires skin support)"
+msgstr ""
+
 msgctxt "#32000"
 msgid "Add"
 msgstr ""
@@ -501,35 +507,34 @@ msgctxt "#32119"
 msgid "Default widgets"
 msgstr ""
 
-msgctxt "#32217"
-msgid "folder"
-msgstr ""
-
-msgctxt "#32218"
-msgid "item"
-msgstr ""
-
-msgctxt "#32219"
-msgid "grouped"
-msgstr ""
-
-msgctxt "#33000"
-msgid "Settings"
-msgstr ""
-
-msgctxt "#33001"
+msgctxt "#32120"
 msgid "Never hide PVR shortcuts"
 msgstr ""
 
-msgctxt "#33002"
+msgctxt "#32121"
 msgid "Share menu between compatible skins"
 msgstr ""
 
-msgctxt "#33003"
+msgctxt "#32122"
+msgid "Default widgets"
+msgstr ""
+
+msgctxt "#32123"
 msgid "Enable debug logging"
 msgstr ""
 
-msgctxt "#33010"
-msgid "Game Add-On"
+msgctxt "#32230"
+msgid "folder"
 msgstr ""
 
+msgctxt "#32231"
+msgid "item"
+msgstr ""
+
+msgctxt "#32232"
+msgid "grouped"
+msgstr ""
+
+msgctxt "#32240"
+msgid "Game Add-On"
+msgstr ""
