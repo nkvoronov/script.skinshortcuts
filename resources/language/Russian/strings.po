@@ -18,11 +18,9 @@ msgstr ""
 
 msgctxt "Addon Description"
 msgid ""
-"Add-on for skins to provide simple managing and listing of user shortcuts "
-"(requires skin support)"
-msgstr ""
 "Дополнение для обложек, предоставляющее простой способ управления списками пользовательских ярлыков "
 "(требуется поддержка обложкой)"
+msgstr ""
 
 msgctxt "#32000"
 msgid "Add"
@@ -121,8 +119,8 @@ msgid "Timers"
 msgstr "Таймеры"
 
 msgctxt "#32024"
-msgid "Custom item"
-msgstr "Пользовательский элемент"
+msgid "Custom shortcut"
+msgstr "Пользовательский ярлык"
 
 msgctxt "#32025"
 msgid "Set label"
@@ -134,11 +132,11 @@ msgstr "Выбрать эскиз"
 
 msgctxt "#32027"
 msgid "Change action"
-msgstr "Пользовательское действие"
+msgstr "Изменить действие"
 
 msgctxt "#32028"
-msgid "Restore menu items"
-msgstr "Востановить элементы меню"
+msgid "Reset shortcuts"
+msgstr "Сбросить ярлыки"
 
 msgctxt "#32029"
 msgid "Common"
@@ -161,27 +159,25 @@ msgid "Eject tray"
 msgstr "Открыть лоток"
 
 msgctxt "#32034"
-msgid "Common menu item"
-msgstr "Общий элемент меню"
+msgid "Common Shortcut"
+msgstr "Общий ярлык"
 
 msgctxt "#32035"
 msgid "Choose which items to display on the Main Menu"
 msgstr "Выберите элемент для отображения в Главном меню"
 
-#. ::MENUNAME:: is used internally and should NOT be translated :)
 msgctxt "#32036"
 msgid "Choose shortcuts for ::MENUNAME::"
 msgstr "Выбрать ярлыки для ::MENUNAME::"
 
 msgctxt "#32037"
-msgid "Reset all menu items"
-msgstr "Сбросить все элементы меню"
+msgid "Reset all shortcuts"
+msgstr "Сбросить все ярлыки"
 
 msgctxt "#32038"
-msgid "Are you sure you want to reset all menu items back to default?"
-msgstr "Вы действительно хотите сбросить все меню до значений по умолчанию ?"
+msgid "Are you sure you want to reset all shortcuts back to default?"
+msgstr "Вы действительно хотите сбросить все ярлыки на настройки по умолчанию?"
 
-#. ::MENUNAME:: is used internally and should NOT be translated :)
 msgctxt "#32039"
 msgid "Pick widget for ::MENUNAME::"
 msgstr "Взять виджет для ::MENUNAME::"
@@ -212,19 +208,19 @@ msgstr "Выбрать фон"
 
 msgctxt "#32046"
 msgid "Update video library"
-msgstr "Обновить видеотеку"
+msgstr "Обновить видео библиотеку"
 
 msgctxt "#32047"
 msgid "Update audio library"
-msgstr "Обновить фонотеку"
+msgstr "Обновить аудио библиотеку"
 
 msgctxt "#32048"
-msgid "Choose item for menu"
-msgstr "Выбрать элемент для меню"
+msgid "Choose shortcut"
+msgstr "Выбрать ярлык"
 
 msgctxt "#32049"
 msgid "Building menu..."
-msgstr "Построение меню..."
+msgstr "Создание меню ..."
 
 msgctxt "#32050"
 msgid "Default"
@@ -259,8 +255,8 @@ msgid "Kodi Commands"
 msgstr "Команды Kodi"
 
 msgctxt "#32058"
-msgid "Create menu item to here"
-msgstr "Сделать элемент меню здесь"
+msgid "Create shortcut to here"
+msgstr "Сделать ярлык здесь"
 
 msgctxt "#32059"
 msgid "Skin Playlist"
@@ -272,7 +268,7 @@ msgstr "Что вы хотите сделать с плейлистом?"
 
 msgctxt "#32061"
 msgid "Display"
-msgstr "Показывать"
+msgstr "Показать"
 
 msgctxt "#32062"
 msgid "Play"
@@ -340,7 +336,7 @@ msgstr "Радио каналы"
 
 msgctxt "#32078"
 msgid "Display..."
-msgstr "Показывать..."
+msgstr "Показать..."
 
 msgctxt "#32079"
 msgid "Files view"
@@ -397,7 +393,7 @@ msgstr "Невозможно добавить пункт в меню. Пожал
 
 msgctxt "#32092"
 msgid "Unable to build menu."
-msgstr "Невозможно построить меню."
+msgstr "Невозможно создать меню."
 
 msgctxt "#32093"
 msgid "Upload debug log?"
@@ -449,7 +445,7 @@ msgstr "Восстановить значения по умолчанию для
 
 msgctxt "#32105"
 msgid "There are no menu items to restore for this menu"
-msgstr "Здесь нет пунктов меню для восстановить этого меню"
+msgstr "Здесь нет пунктов меню для восстановления этого меню"
 
 msgctxt "#32106"
 msgid "Install widget provider"
@@ -465,7 +461,7 @@ msgstr "Режим "Вечеринка" (музыкальное видео)"
 
 msgctxt "#32109"
 msgid "No menus from compatible skins found to import"
-msgstr "Нет меню из совместимых скинов не найдено для импорта"
+msgstr "Меню из совместимых скинов не найдено для импорта"
 
 msgctxt "#32110"
 msgid "Import menu from skin"
