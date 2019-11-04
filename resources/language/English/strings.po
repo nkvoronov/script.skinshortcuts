@@ -18,6 +18,7 @@ msgstr ""
 
 msgctxt "Addon Description"
 msgid ""
+
 "Add-on for skins to provide simple managing and listing of user shortcuts "
 "(requires skin support)"
 msgstr ""
