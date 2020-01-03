@@ -1443,7 +1443,7 @@ class LibraryFunctions():
                     listitem = self._create( [ item[ "file" ], altLabel, "", {"icon": item.get("icon"), "thumb": thumb} ] )
                     # add all passed properties to the gui to set default background, widget etc.
                     properties = []
-                    for key, value in smartShortCutsData.iteritems():
+                    for key, value in smartShortCutsData.items():
                         properties.append( [key, value ] )
                     listitem.setProperty( "smartShortcutProperties", repr( properties ) )
                     listitem.setProperty( "untranslatedIcon", thumb )
