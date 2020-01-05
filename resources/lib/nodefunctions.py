@@ -360,7 +360,7 @@ class NodeFunctions():
         for menuitem in menuitems.findall( "shortcut" ):
             # Get existing items labelID's
             listitem = xbmcgui.ListItem(label=DATA.local( menuitem.find( "label" ).text )[2])
-            listitem.setArt({ 'icon':menuitem.find( "icon" ).text })
+            listitem.setArt({"icon":menuitem.find( "icon" ).text})
             allMenuItems.append( listitem )
             allLabelIDs.append( DATA._get_labelID( DATA.local( menuitem.find( "label" ).text )[3], menuitem.find( "action" ).text ) )
 
@@ -580,7 +580,7 @@ class ShowDialog( xbmcgui.WindowXMLDialog ):
 
         for item in self.listing :
             listitem = xbmcgui.ListItem(label=item.getLabel(), label2=item.getLabel2())
-            listitem.setArt({ 'icon':item.getProperty( "icon" ), 'thumb':item.getProperty( "thumbnail" ) })
+            listitem.setArt({"icon":item.getProperty( "icon" ), "thumb":item.getProperty( "thumbnail" )})
             listitem.setProperty( "Addon.Summary", item.getLabel2() )
             self.fav_list.addItem( listitem )
 

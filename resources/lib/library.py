@@ -608,7 +608,7 @@ class LibraryFunctions():
         # If the icon starts with a $, ask Kodi to parse it for us
         displayIcon = icon
         iconIsVar = False
-        if icon.startswith( "$" ):
+        if icon.startswith("$"):
             displayIcon = xbmc.getInfoLabel( icon )
             iconIsVar = True
 
@@ -625,9 +625,9 @@ class LibraryFunctions():
         listitem = xbmcgui.ListItem(label=displayLabel, label2=displayLabel2)
         if thumbnail is not None:
             listitem.setProperty( "thumbnail", thumbnail)
-            listitem.setArt({ 'icon':displayIcon, 'thumb':thumbnail })
+            listitem.setArt({"icon":displayIcon, "thumb":thumbnail})
         else:
-            listitem.setArt({ 'icon':thumbnail })
+            listitem.setArt({"icon":thumbnail})
         listitem.setProperty( "path", item[0] )
         listitem.setProperty( "localizedString", localLabel )
         listitem.setProperty( "shortcutType", shortcutType )
@@ -670,7 +670,7 @@ class LibraryFunctions():
         if oldicon is not None:
             # we found an icon override
             item.setProperty( "icon", newicon )
-            item.setArt({ 'icon':newicon })
+            item.setArt({"icon":newicon})
 
         if setDefault == True:
             item = self._get_icon_overrides( tree, item, content, False )
@@ -1494,7 +1494,7 @@ class LibraryFunctions():
 
                 # Create a listitem
                 listitem = xbmcgui.ListItem(label=label[ len( label ) - 1 ].replace( "  >", "" ), label2=localItemType)
-                listitem.setArt({ 'icon':'DefaultShortcut.png', 'thumb':thumbnail[ len( thumbnail ) - 1 ] })
+                listitem.setArt({"icon":"DefaultShortcut.png", "thumb":thumbnail[ len( thumbnail ) - 1 ]})
 
                 # Build the action
                 if itemType in [ "32010", "32014", "32069" ]:
@@ -2177,7 +2177,7 @@ class ShowDialog( xbmcgui.WindowXMLDialog ):
         for item in self.listing :
             listitem = xbmcgui.ListItem(label=item.getLabel(), label2=item.getLabel2())
             listitem.setProperty( "Addon.Summary", item.getLabel2() )
-            listitem.setArt({ 'icon':item.getProperty( "icon" ), 'thumb':item.getProperty( "thumbnail" ) })
+            listitem.setArt({"icon":item.getProperty( "icon" ), "thumb":item.getProperty( "thumbnail" )})
             self.fav_list.addItem( listitem )
 
         self.setFocus(self.fav_list)
