@@ -1,13 +1,14 @@
 # coding=utf-8
 import os, sys
-import xbmc, xbmcaddon, xbmcgui, xbmcplugin, urllib, xbmcvfs
+import xbmc, xbmcaddon, xbmcgui, xbmcplugin, xbmcvfs
+import urllib.parse as urllib
 import xml.etree.ElementTree as xmltree
-import cPickle as pickle
+import _pickle as pickle
 import pstats
 import random
 import time
 import calendar
-import thread
+import _thread as thread
 from time import gmtime, strftime
 from datetime import datetime
 from traceback import print_exc
@@ -21,14 +22,14 @@ else:
     import json as simplejson
 
 ADDON        = xbmcaddon.Addon()
-ADDONID      = ADDON.getAddonInfo('id').decode( 'utf-8' )
+ADDONID      = ADDON.getAddonInfo('id')
 ADDONVERSION = ADDON.getAddonInfo('version')
 LANGUAGE     = ADDON.getLocalizedString
-CWD          = ADDON.getAddonInfo('path').decode("utf-8")
-ADDONNAME    = ADDON.getAddonInfo('name').decode("utf-8")
-RESOURCE     = xbmc.translatePath( os.path.join( CWD, 'resources', 'lib' ) ).decode("utf-8")
-DATAPATH     = os.path.join( xbmc.translatePath( "special://profile/" ).decode( 'utf-8' ), "addon_data", ADDONID )
-MASTERPATH   = os.path.join( xbmc.translatePath( "special://masterprofile/" ).decode( 'utf-8' ), "addon_data", ADDONID )
+CWD          = ADDON.getAddonInfo('path')
+ADDONNAME    = ADDON.getAddonInfo('name')
+RESOURCE     = xbmc.translatePath( os.path.join( CWD, 'resources', 'lib' ) )
+DATAPATH     = os.path.join( xbmc.translatePath( "special://profile/" ), "addon_data", ADDONID )
+MASTERPATH   = os.path.join( xbmc.translatePath( "special://masterprofile/" ), "addon_data", ADDONID )
 
 sys.path.append(RESOURCE)
 
@@ -46,31 +47,29 @@ hashlist = []
 
 def log(txt):
     if ADDON.getSetting( "enable_logging" ) == "true":
-        if isinstance (txt,str):
-            txt = txt.decode('utf-8')
         message = u'%s: %s' % (ADDONID, txt)
-        xbmc.log(msg=message.encode('utf-8'), level=xbmc.LOGDEBUG)
-        
+        xbmc.log(msg=message, level=xbmc.LOGDEBUG)
+
 class Main:
     # MAIN ENTRY POINT
     def __init__(self):
         self._parse_argv()
         self.WINDOW = xbmcgui.Window(10000)
-        
+
         # Create data and master paths if not exists
         if not xbmcvfs.exists(DATAPATH):
             xbmcvfs.mkdir(DATAPATH)
         if not xbmcvfs.exists(MASTERPATH):
             xbmcvfs.mkdir(MASTERPATH)
-        
+
         # Perform action specified by user
         if not self.TYPE:
             line1 = "This addon is for skin developers, and requires skin support"
             xbmcgui.Dialog().ok(ADDONNAME, line1)
-            
+
         if self.TYPE=="buildxml":
             XML.buildMenu( self.MENUID, self.GROUP, self.LEVELS, self.MODE, self.OPTIONS, self.MINITEMS )
-            
+
         if self.TYPE=="launch":
             xbmcplugin.setResolvedUrl( handle=int( sys.argv[1]), succeeded=False, listitem=xbmcgui.ListItem() )
             self._launch_shortcut( self.PATH )
@@ -78,24 +77,24 @@ class Main:
             xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Player.Open", "params": { "item": {"channelid": ' + self.CHANNEL + '} } }')
         if self.TYPE=="manage":
             self._manage_shortcuts( self.GROUP, self.DEFAULTGROUP, self.NOLABELS, self.GROUPNAME )
-            
+
         if self.TYPE=="hidesubmenu":
             self._hidesubmenu( self.MENUID )
         if self.TYPE=="resetlist":
             self._resetlist( self.MENUID, self.NEXTACTION )
-            
+
         if self.TYPE=="shortcuts":
             # We're just going to choose a shortcut, and save its details to the given
             # skin labels
 
             # Load library shortcuts in thread
             thread.start_new_thread( LIBRARY.loadAllLibrary, () )
-            
+
             if self.GROUPING is not None:
                 selectedShortcut = LIBRARY.selectShortcut( "", grouping = self.GROUPING, custom = self.CUSTOM, showNone = self.NONE )
             else:
                 selectedShortcut = LIBRARY.selectShortcut( "", custom = self.CUSTOM, showNone = self.NONE )
-            
+
             # Now set the skin strings
             if selectedShortcut is not None and selectedShortcut.getProperty( "Path" ):
                 path = selectedShortcut.getProperty( "Path" )
@@ -143,15 +142,15 @@ class Main:
             showCustom = False
             if self.WIDGETPATH and xbmc.getCondVisibility( "!%s(Skin.String(%s))" %( ISEMPTY, self.WIDGETPATH ) ):
                 showCustom = True
-            
+
             if self.GROUPING:
                 if self.GROUPING.lower() == "default":
-                    selectedShortcut = LIBRARY.selectShortcut( "", custom = showCustom, showNone = self.NONE )    
+                    selectedShortcut = LIBRARY.selectShortcut( "", custom = showCustom, showNone = self.NONE )
                 else:
                     selectedShortcut = LIBRARY.selectShortcut( "", grouping = self.GROUPING, custom = showCustom, showNone = self.NONE )
             else:
                 selectedShortcut = LIBRARY.selectShortcut( "", grouping = "widget", custom = showCustom, showNone = self.NONE )
-            
+
             # Now set the skin strings
             if selectedShortcut is None:
                 # The user cancelled
@@ -212,7 +211,7 @@ class Main:
         if self.TYPE=="setProperty":
             # External request to set properties of a menu item
             NODE.setProperties( self.PROPERTIES, self.VALUES, self.LABELID, self.GROUPNAME, DATA )
-                
+
         if self.TYPE=="resetall":
             # Tell XBMC not to try playing any media
             try:
@@ -233,7 +232,7 @@ class Main:
             except:
                 self.TYPE = ""
                 params = {}
-        
+
         self.GROUP = params.get( "group", "" )
         self.GROUPNAME = params.get( "groupname", None )
         self.GROUPING = params.get( "grouping", None )
@@ -243,7 +242,7 @@ class Main:
         self.LEVELS = params.get( "levels", "0" )
         self.MODE = params.get( "mode", None )
         self.CHANNEL = params.get( "channel", None )
-        
+
         # Properties when using LIBRARY._displayShortcuts
         self.LABEL = params.get( "skinLabel", None )
         self.ACTION = params.get( "skinAction", None )
@@ -267,7 +266,7 @@ class Main:
             self.NONE = True
         else:
             self.NONE = False
-        
+
         self.NOLABELS = params.get( "nolabels", "false" ).lower()
         self.OPTIONS = params.get( "options", "" ).split( "|" )
         self.MINITEMS = int( params.get( "minitems", "0" ) )
@@ -285,15 +284,15 @@ class Main:
         self.PROPERTIES = urllib.unquote( params.get( "property", "" ) )
         self.VALUES = urllib.unquote( params.get( "value", "" ) )
         self.LABELID = params.get( "labelID", "" )
-    
-    
+
+
     # -----------------
     # PRIMARY FUNCTIONS
     # -----------------
 
     def _launch_shortcut( self, path ):
         action = urllib.unquote( self.PATH )
-        
+
         if action.find("::MULTIPLE::") == -1:
             # Single action, run it
             xbmc.executebuiltin( action )
@@ -303,8 +302,8 @@ class Main:
             for singleAction in actions:
                 if singleAction != "::MULTIPLE::":
                     xbmc.executebuiltin( singleAction )
-        
-    
+
+
     def _manage_shortcuts( self, group, defaultGroup, nolabels, groupname ):
         homeWindow = xbmcgui.Window( 10000 )
         if homeWindow.getProperty( "skinshortcuts-loading" ) and int( calendar.timegm( gmtime() ) ) - int( homeWindow.getProperty( "skinshortcuts-loading" ) ) <= 5:
@@ -314,30 +313,30 @@ class Main:
         import gui
         ui= gui.GUI( "script-skinshortcuts.xml", CWD, "default", group=group, defaultGroup=defaultGroup, nolabels=nolabels, groupname=groupname )
         ui.doModal()
-        del ui   
-        
+        del ui
+
         # Update home window property (used to automatically refresh type=settings)
         homeWindow.setProperty( "skinshortcuts",strftime( "%Y%m%d%H%M%S",gmtime() ) )
-        
+
         # Clear window properties for this group, and for backgrounds, widgets, properties
-        homeWindow.clearProperty( "skinshortcuts-" + group )        
-        homeWindow.clearProperty( "skinshortcutsWidgets" )        
-        homeWindow.clearProperty( "skinshortcutsCustomProperties" )        
-        homeWindow.clearProperty( "skinshortcutsBackgrounds" )        
-        
-        
+        homeWindow.clearProperty( "skinshortcuts-" + group )
+        homeWindow.clearProperty( "skinshortcutsWidgets" )
+        homeWindow.clearProperty( "skinshortcutsCustomProperties" )
+        homeWindow.clearProperty( "skinshortcutsBackgrounds" )
+
+
     def _reset_all_shortcuts( self ):
         log( "### Resetting all shortcuts" )
         dialog = xbmcgui.Dialog()
-        
+
         shouldRun = None
         if self.WARNING is not None and self.WARNING.lower() == "false":
             shouldRun = True
-        
+
         # Ask the user if they're sure they want to do this
         if shouldRun is None:
             shouldRun = dialog.yesno( LANGUAGE( 32037 ), LANGUAGE( 32038 ) )
-        
+
         if shouldRun:
             isShared = DATA.checkIfMenusShared()
             for files in xbmcvfs.listdir( DATAPATH ):
@@ -354,7 +353,7 @@ class Main:
 
                         #if file != "settings.xml" and ( not isShared or file.startswith( "%s-" %( xbmc.getSkinDir() ) ) ) or file == "%s.properties" %( xbmc.getSkinDir() ):
                         if deleteFile:
-                            file_path = os.path.join( DATAPATH, file.decode( 'utf-8' ) ).encode( 'utf-8' )
+                            file_path = os.path.join( DATAPATH, file )
                             if xbmcvfs.exists( file_path ):
                                 try:
                                     xbmcvfs.delete( file_path )
@@ -363,46 +362,46 @@ class Main:
                                     log( "### ERROR could not delete file %s" % file )
                         else:
                             log( "Not deleting file %s" %[ file ] )
-        
+
             # Update home window property (used to automatically refresh type=settings)
-            xbmcgui.Window( 10000 ).setProperty( "skinshortcuts",strftime( "%Y%m%d%H%M%S",gmtime() ) )   
-    
+            xbmcgui.Window( 10000 ).setProperty( "skinshortcuts",strftime( "%Y%m%d%H%M%S",gmtime() ) )
+
     # Functions for providing whoe menu in single list
     def _hidesubmenu( self, menuid ):
         count = 0
         while xbmc.getCondVisibility( "!%s(Container(%s).ListItem(%i).Property(isSubmenu))" %( ISEMPTY, menuid, count ) ):
             count -= 1
-            
+
         if count != 0:
             xbmc.executebuiltin( "Control.Move(" + menuid + "," + str( count ) + " )" )
-        
+
         xbmc.executebuiltin( "ClearProperty(submenuVisibility, 10000)" )
-        
+
     def _resetlist( self, menuid, action ):
         count = 0
         while xbmc.getCondVisibility( "!%s(Container(%s).ListItemNoWrap(%i).Label)" %( ISEMPTY, menuid, count ) ):
             count -= 1
-            
+
         count += 1
-            
+
         if count != 0:
             xbmc.executebuiltin( "Control.Move(" + menuid + "," + str( count ) + " )" )
-            
+
         xbmc.executebuiltin( urllib.unquote( action ) )
-        
+
 if ( __name__ == "__main__" ):
     log('script version %s started' % ADDONVERSION)
-    
+
     # Uncomment when profiling performance
     #filename = os.path.join( DATAPATH, strftime( "%Y%m%d%H%M%S",gmtime() ) + "-" + str( random.randrange(0,100000) ) + ".log" )
     #cProfile.run( 'Main()', filename )
-    
+
     #stream = open( filename + ".txt", 'w')
     #p = pstats.Stats( filename, stream = stream )
     #p.sort_stats( "cumulative" )
     #p.print_stats()
-    
+
     # Comment out the following line when profiling performance
     Main()
-    
+
     log('script stopped')
