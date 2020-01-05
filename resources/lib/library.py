@@ -1,19 +1,18 @@
 # coding=utf-8
-import os, sys, datetime
+import os, sys, datetime, unicodedata
 import xbmc, xbmcgui, xbmcvfs
 import urllib.parse as urllib
 import xml.etree.ElementTree as xmltree
 from xml.dom.minidom import parse
 from xml.sax.saxutils import escape as escapeXML
 from traceback import print_exc
+from unidecode import unidecode
+from unicodeutils import try_decode
 import datafunctions, nodefunctions
+import json as simplejson
+
 DATA = datafunctions.DataFunctions()
 NODE = nodefunctions.NodeFunctions()
-
-if sys.version_info < (2, 7):
-    import simplejson
-else:
-    import json as simplejson
 
 ADDON        = sys.modules[ "__main__" ].ADDON
 ADDONID      = sys.modules[ "__main__" ].ADDONID
@@ -573,7 +572,7 @@ class LibraryFunctions():
         # Retrieve icon and thumbnail
         if item[3]:
             if "icon" in item[3].keys() and item[ 3 ][ "icon" ] is not None:
-                icon = item[3]["icon"]
+                icon = try_decode(item[3]["icon"])
             else:
                 icon = "DefaultShortcut.png"
             if "thumb" in item[3].keys():
@@ -599,7 +598,7 @@ class LibraryFunctions():
 
         usedDefaultThumbAsIcon = False
         if self.useDefaultThumbAsIcon == True and thumbnail is not None:
-            icon = thumbnail
+            icon = try_decode(thumbnail)
             thumbnail = None
             usedDefaultThumbAsIcon = True
 
@@ -608,12 +607,12 @@ class LibraryFunctions():
         # If the icon starts with a $, ask Kodi to parse it for us
         displayIcon = icon
         iconIsVar = False
-        if str(icon).startswith("$"):
+        if icon.startswith( "$" ):
             displayIcon = xbmc.getInfoLabel( icon )
             iconIsVar = True
 
         #special treatment for image resource addons
-        if str(icon).startswith("resource://"):
+        if icon.startswith("resource://"):
             iconIsVar = True
 
         # If the skin doesn't have the icon, replace it with DefaultShortcut.png
@@ -622,12 +621,14 @@ class LibraryFunctions():
                 displayIcon = "DefaultShortcut.png"
 
         # Build listitem
-        listitem = xbmcgui.ListItem(label=displayLabel, label2=displayLabel2)
         if thumbnail is not None:
+            listitem = xbmcgui.ListItem(label=displayLabel, label2=displayLabel2)
+            listitem.setArt({"icon": displayIcon})
+            listitem.setArt({"thumb": thumbnail})
             listitem.setProperty( "thumbnail", thumbnail)
-            listitem.setArt({"icon":displayIcon, "thumb":thumbnail})
         else:
-            listitem.setArt({"icon":thumbnail})
+            listitem = xbmcgui.ListItem(label=displayLabel, label2=displayLabel2)
+            listitem.setArt({"icon": thumbnail})
         listitem.setProperty( "path", item[0] )
         listitem.setProperty( "localizedString", localLabel )
         listitem.setProperty( "shortcutType", shortcutType )
@@ -636,7 +637,7 @@ class LibraryFunctions():
         listitem.setProperty( "defaultLabel", labelID )
 
         if displayIcon != icon:
-            listitem.setProperty( "untranslatedIcon", str(icon) )
+            listitem.setProperty( "untranslatedIcon", icon )
 
         return( listitem )
 
@@ -670,7 +671,7 @@ class LibraryFunctions():
         if oldicon is not None:
             # we found an icon override
             item.setProperty( "icon", newicon )
-            item.setArt({"icon":newicon})
+            item.setArt({"icon": newicon})
 
         if setDefault == True:
             item = self._get_icon_overrides( tree, item, content, False )
@@ -732,7 +733,7 @@ class LibraryFunctions():
             # 4 = Order
             # 5 = Media type (not folders...?)
 
-            #make sure the path ends with a trailing slash te prevent weird kodi behaviour
+            #make sure the path ends with a trailing slash to prevent weird kodi behaviour
             if "/" in nodes[key][2] and not nodes[key][2].endswith("/"):
                 nodes[key][2] += "/"
 
@@ -1340,9 +1341,9 @@ class LibraryFunctions():
         widgetType = None
         addonType = None
 
-        dialogLabel = label[0].replace( "  >", "" )
+        dialogLabel = try_decode( label[0] ).replace( "  >", "" )
         if len( label ) != 1:
-            dialogLabel = label[0].replace( "  >", "" ) + " - " + label[ -1 ].replace( "  >", "" )
+            dialogLabel = try_decode( label[0] ).replace( "  >", "" ) + " - " + try_decode( label[ -1 ] ).replace( "  >", "" )
 
         listings = []
 
@@ -1365,7 +1366,7 @@ class LibraryFunctions():
                 createLabel = "32100"
             listings.append( self._get_icon_overrides( tree, self._create( ["::CREATE::", createLabel, "", {}] ), "" ) )
 
-        log( "Getting %s - %s" %( dialogLabel, location ) )
+        log( "Getting %s - %s" %( dialogLabel, try_decode( location ) ) )
 
         # Show a waiting dialog, then get the listings for the directory
         dialog = xbmcgui.DialogProgress()
@@ -1414,7 +1415,7 @@ class LibraryFunctions():
                             listitem = self._create( [ item[ "file" ], "%s  >" %( item[ "label" ] ), "", {"icon": "DefaultFolder.png", "thumb": thumb} ] )
 
                         # Add widget properties
-                        widgetName = label[0].replace( "  >", "" ) + " - " + item[ "label" ]
+                        widgetName = try_decode(label[0]).replace( "  >", "" ) + " - " + item[ "label" ]
                         listitem.setProperty( "widget", "Library" )
                         listitem.setProperty( "widgetName", widgetName )
                         listitem.setProperty( "widgetType", widgetType )
@@ -1494,7 +1495,8 @@ class LibraryFunctions():
 
                 # Create a listitem
                 listitem = xbmcgui.ListItem(label=label[ len( label ) - 1 ].replace( "  >", "" ), label2=localItemType)
-                listitem.setArt({"icon":"DefaultShortcut.png", "thumb":thumbnail[ len( thumbnail ) - 1 ]})
+                listitem.setArt({"icon": "DefaultShortcut.png"})
+                listitem.setArt({"thumb": thumbnail[len(thumbnail) - 1]})
 
                 # Build the action
                 if itemType in [ "32010", "32014", "32069" ]:
@@ -1961,11 +1963,11 @@ class LibraryFunctions():
             availableShortcuts.insert( 0, self._create(["::NONE::", LANGUAGE(32053), "", {"icon":"DefaultAddonNone.png"}] ) )
 
         if custom is not False and group == "":
-            availableShortcuts.append( self._create(["||CUSTOM||", LANGUAGE(32024), "", {"icon":"DefaultFolder.png"}] ) )
+            availableShortcuts.append( self._create(["||CUSTOM||", LANGUAGE(32024), "", {"icon": "DefaultFolder.png"}] ) )
 
         if group != "":
             # Add a link to go 'up'
-            additem = self._create( ["::BACK::", "..", "", {"icon":"DefaultFolderBack.png"}] )
+            additem = self._create( ["::BACK::", "..", "", {"icon": "DefaultFolderBack.png"}] )
             availableShortcuts.insert( 0, self._get_icon_overrides( DATA._get_overrides_skin(), additem, "" ) )
 
         # Show select dialog
@@ -2176,8 +2178,9 @@ class ShowDialog( xbmcgui.WindowXMLDialog ):
 
         for item in self.listing :
             listitem = xbmcgui.ListItem(label=item.getLabel(), label2=item.getLabel2())
+            listitem.setArt({"icon": item.getProperty("icon")})
+            listitem.setArt({"thumb": item.getProperty("thumbnail")})
             listitem.setProperty( "Addon.Summary", item.getLabel2() )
-            listitem.setArt({"icon":item.getProperty( "icon" ), "thumb":item.getProperty( "thumbnail" )})
             self.fav_list.addItem( listitem )
 
         self.setFocus(self.fav_list)

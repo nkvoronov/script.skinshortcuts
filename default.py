@@ -3,7 +3,7 @@ import os, sys
 import xbmc, xbmcaddon, xbmcgui, xbmcplugin, xbmcvfs
 import urllib.parse as urllib
 import xml.etree.ElementTree as xmltree
-import _pickle as pickle
+import pickle
 import pstats
 import random
 import time
@@ -12,14 +12,10 @@ import _thread as thread
 from time import gmtime, strftime
 from datetime import datetime
 from traceback import print_exc
+import json as simplejson
 
 # Uncomment when profiling performance
 # import cProfile
-
-if sys.version_info < (2, 7):
-    import simplejson
-else:
-    import json as simplejson
 
 ADDON        = xbmcaddon.Addon()
 ADDONID      = ADDON.getAddonInfo('id')
@@ -68,6 +64,7 @@ class Main:
             xbmcgui.Dialog().ok(ADDONNAME, line1)
 
         if self.TYPE=="buildxml":
+            xbmc.sleep(100)
             XML.buildMenu( self.MENUID, self.GROUP, self.LEVELS, self.MODE, self.OPTIONS, self.MINITEMS )
 
         if self.TYPE=="launch":
@@ -88,7 +85,7 @@ class Main:
             # skin labels
 
             # Load library shortcuts in thread
-            thread.start_new_thread( LIBRARY.loadAllLibrary, () )
+            thread.start_new_thread(LIBRARY.loadAllLibrary, ())
 
             if self.GROUPING is not None:
                 selectedShortcut = LIBRARY.selectShortcut( "", grouping = self.GROUPING, custom = self.CUSTOM, showNone = self.NONE )
@@ -158,7 +155,7 @@ class Main:
 
             elif selectedShortcut.getProperty( "Path" ) and selectedShortcut.getProperty( "custom" ) == "true":
                 # The user updated the path - so we just set that property
-                xbmc.executebuiltin( "Skin.SetString(%s,%s)" %( self.WIDGETPATH, urllib.unquote( selectedShortcut.getProperty( "Path" ) ) ) )
+                xbmc.executebuiltin("Skin.SetString(%s,%s)" %( self.WIDGETPATH, urllib.unquote( selectedShortcut.getProperty("Path"))))
 
             elif selectedShortcut.getProperty( "Path" ):
                 # The user selected the widget they wanted

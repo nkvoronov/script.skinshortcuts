@@ -1,18 +1,16 @@
 # coding=utf-8
-import os, sys, datetime, re, types
+import os, sys, datetime, unicodedata, re, types
 import xbmc, xbmcaddon, xbmcgui, xbmcvfs
 import urllib.parse as urllib
 import xml.etree.ElementTree as xmltree
 import hashlib, hashlist
-import _pickle as pickle
+import pickle
 from xml.dom.minidom import parse
 from traceback import print_exc
 from html.entities import name2codepoint
-
-if sys.version_info < (2, 7):
-    import simplejson
-else:
-    import json as simplejson
+from unidecode import unidecode
+from unicodeutils import try_decode
+import json as simplejson
 
 ADDON        = xbmcaddon.Addon()
 ADDONID      = ADDON.getAddonInfo('id')
@@ -110,7 +108,9 @@ class NodeFunctions():
             label = root.find( "label" ).text
 
             icon = root.find( "icon" )
-            if icon is None:
+            if icon is not None:
+                icon = icon.text
+            else:
                 icon = ""
 
             if isFolder:
@@ -135,10 +135,10 @@ class NodeFunctions():
             print_exc()
 
     def isGrouped( self, path ):
-        customPathVideo = path.replace( "library://video", os.path.join( xbmc.translatePath( "special://profile" ), "library", "video" ) )[:-1]
-        defaultPathVideo = path.replace( "library://video", os.path.join( xbmc.translatePath( "special://xbmc" ), "system", "library", "video" ) )[:-1]
-        customPathAudio = path.replace( "library://music", os.path.join( xbmc.translatePath( "special://profile" ), "library", "music" ) )[:-1]
-        defaultPathAudio = path.replace( "library://music", os.path.join( xbmc.translatePath( "special://xbmc" ), "system", "library", "music" ) )[:-1]
+        customPathVideo = path.replace( "library://video", os.path.join( xbmc.translatePath( "special://profile"), "library", "video" ) )[:-1]
+        defaultPathVideo = path.replace( "library://video", os.path.join( xbmc.translatePath( "special://xbmc"), "system", "library", "video" ) )[:-1]
+        customPathAudio = path.replace( "library://music", os.path.join( xbmc.translatePath( "special://profile"), "library", "music" ) )[:-1]
+        defaultPathAudio = path.replace( "library://music", os.path.join( xbmc.translatePath( "special://xbmc"), "system", "library", "music" ) )[:-1]
 
         paths = [ customPathVideo, defaultPathVideo, customPathAudio, defaultPathAudio ]
         foundPath = False
@@ -314,6 +314,11 @@ class NodeFunctions():
         paths = []
         nodePaths = []
 
+        # Now we've retrieved the path, decode everything for writing
+        path = try_decode( path )
+        label = try_decode( label )
+        icon = try_decode( icon )
+
         # Add all directories returned by the json query
         if ('result' in json_response) and ('files' in json_response['result']) and (json_response['result']['files'] is not None):
             labels = [ LANGUAGE(32058) ]
@@ -360,7 +365,7 @@ class NodeFunctions():
         for menuitem in menuitems.findall( "shortcut" ):
             # Get existing items labelID's
             listitem = xbmcgui.ListItem(label=DATA.local( menuitem.find( "label" ).text )[2])
-            listitem.setArt({"icon":menuitem.find( "icon" ).text})
+            listitem.setArt({"icon": menuitem.find( "icon" ).text})
             allMenuItems.append( listitem )
             allLabelIDs.append( DATA._get_labelID( DATA.local( menuitem.find( "label" ).text )[3], menuitem.find( "action" ).text ) )
 
@@ -454,6 +459,12 @@ class NodeFunctions():
         if not group:
             group = "mainmenu"
 
+        # Decode values
+        properties = try_decode( properties )
+        values = try_decode( values )
+        labelID = try_decode( labelID )
+        group = try_decode( group )
+
         # Split up property names and values
         propertyNames = properties.split( "|" )
         propertyValues = values.replace( "::INFO::", "$INFO" ).split( "|" )
@@ -523,7 +534,7 @@ class NodeFunctions():
 
         # Save the new properties
         try:
-            f = xbmcvfs.File( os.path.join( DATAPATH , xbmc.getSkinDir() + ".properties" ), 'wb' )
+            f = xbmcvfs.File( os.path.join( DATAPATH , xbmc.getSkinDir() + ".properties" ), 'w' )
             f.write( repr( saveData ).replace( "],", "],\n" ) )
             f.close()
             log( "Properties file saved succesfully" )
@@ -580,7 +591,8 @@ class ShowDialog( xbmcgui.WindowXMLDialog ):
 
         for item in self.listing :
             listitem = xbmcgui.ListItem(label=item.getLabel(), label2=item.getLabel2())
-            listitem.setArt({"icon":item.getProperty( "icon" ), "thumb":item.getProperty( "thumbnail" )})
+            listitem.setArt({"icon": item.getProperty("icon")})
+            listitem.setArt({"thumb": item.getProperty("thumbnail")})
             listitem.setProperty( "Addon.Summary", item.getLabel2() )
             self.fav_list.addItem( listitem )
 

@@ -1,15 +1,12 @@
 # coding=utf-8
-import os, sys, datetime, re
+import os, sys, datetime, unicodedata, re
 import xbmc, xbmcgui, xbmcvfs, xbmcaddon
 import xml.etree.ElementTree as xmltree
 from xml.sax.saxutils import escape as escapeXML
 import ast
 from traceback import print_exc
-
-if sys.version_info < (2, 7):
-    import simplejson
-else:
-    import json as simplejson
+from unicodeutils import try_decode
+import json as simplejson
 
 ADDON        = xbmcaddon.Addon()
 ADDONID      = sys.modules[ "__main__" ].ADDONID
@@ -160,7 +157,7 @@ class XMLFunctions():
             property = xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-reloadmainmenu" )
             xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-reloadmainmenu" )
             if property == "True":
-                log( "Menu has been edited")
+                log("Menu has been edited")
                 return True
         except:
             pass
@@ -270,14 +267,15 @@ class XMLFunctions():
                 else:
                     try:
                         hasher = hashlib.md5()
-                        hasher.update( xbmcvfs.File( hash[0] ).read() )
+                        hasher.update(xbmcvfs.File(hash[0]).read().encode("utf-8"))
                         if hasher.hexdigest() != hash[1]:
-                            log( "Hash does not match on file " + hash[0] )
+                            log("Hash does not match on file " + hash[0])
                             log( "(" + hash[1] + " > " + hasher.hexdigest() + ")" )
                             return True
                     except:
                         log( "Unable to generate hash for %s" %( hash[ 0 ] ) )
                         log( "(%s > ?)" %( hash[ 1 ] ) )
+                        print_exc()
             else:
                 if xbmcvfs.exists( hash[0] ):
                     log( "File now exists " + hash[0] )
@@ -424,7 +422,7 @@ class XMLFunctions():
                 submenuDefaultID = None
                 templateCurrentMainMenuItem = None
 
-                if not isinstance( item, str ):
+                if not isinstance(item, str):
                     # This is a main menu item (we know this because it's an element, not a string)
                     submenu = item.find( "labelID" ).text
 
@@ -676,6 +674,9 @@ class XMLFunctions():
             tree.write( path, encoding="UTF-8" )
 
             # Save the hash of the file we've just written
+            hasher = hashlib.md5()
+            hasher.update(xbmcvfs.File(path).read().encode("utf-8"))
+
             with open(path, "r+") as f:
                 DATA._save_hash( path, f.read() )
                 f.close()
@@ -723,10 +724,10 @@ class XMLFunctions():
         if icon is None:
             xmltree.SubElement( newelement, "icon" ).text = "DefaultShortcut.png"
         else:
-            xmltree.SubElement( newelement, "icon" ).text = icon.text
+            xmltree.SubElement( newelement, "icon" ).text = try_decode( icon.text )
         thumb = item.find( "thumb" )
         if thumb is not None:
-            xmltree.SubElement( newelement, "thumb" ).text = item.find( "thumb" ).text
+            xmltree.SubElement( newelement, "thumb" ).text = try_decode( item.find( "thumb" ).text )
 
         # labelID and defaultID
         labelID = xmltree.SubElement( newelement, "property" )
@@ -760,7 +761,7 @@ class XMLFunctions():
             for property in properties:
                 if property[0] == "node.visible":
                     visibleProperty = xmltree.SubElement( newelement, "visible" )
-                    visibleProperty.text = property[1]
+                    visibleProperty.text = try_decode( property[1] )
                 else:
                     additionalproperty = xmltree.SubElement( newelement, "property" )
                     additionalproperty.set( "name", property[0] )
@@ -794,7 +795,7 @@ class XMLFunctions():
                     if property[ 0 ] == "widgetPlaylist":
                         additionalproperty = xmltree.SubElement( newelement, "property" )
                         additionalproperty.set( "name", "widgetPath" )
-                        additionalproperty.text = property[1]
+                        additionalproperty.text = try_decode( property[1] )
 
         # Get fallback properties, property requirements, templateOnly value of properties
         fallbackProperties, fallbacks = DATA._getCustomPropertyFallbacks( groupName )
@@ -939,7 +940,7 @@ class XMLFunctions():
         # Group name
         group = xmltree.SubElement( newelement, "property" )
         group.set( "name", "group" )
-        group.text = groupName
+        group.text = try_decode( groupName )
         allProps[ "group" ] = group
 
         # If this isn't the main menu, and we're cloning widgets or backgrounds...
@@ -948,7 +949,7 @@ class XMLFunctions():
                 for key in self.MAINWIDGET:
                     additionalproperty = xmltree.SubElement( newelement, "property" )
                     additionalproperty.set( "name", key )
-                    additionalproperty.text = self.MAINWIDGET[ key ]
+                    additionalproperty.text = try_decode( self.MAINWIDGET[ key ] )
                     allProps[ key ] = additionalproperty
             if "clonebackgrounds" in options and len( self.MAINBACKGROUND ) is not 0:
                 for key in self.MAINBACKGROUND:

@@ -1,6 +1,7 @@
 # coding=utf-8
 import os, sys, datetime, unicodedata, re, types
-import xbmc, xbmcaddon, xbmcgui, xbmcvfs, urllib
+import xbmc, xbmcaddon, xbmcgui, xbmcvfs
+import urllib.request, urllib.parse, urllib.error
 import xml.etree.ElementTree as xmltree
 import hashlib, hashlist
 import ast
@@ -8,6 +9,7 @@ from xml.dom.minidom import parse
 from traceback import print_exc
 from html.entities import name2codepoint
 from unidecode import unidecode
+from unicodeutils import try_decode
 
 import nodefunctions
 NODE = nodefunctions.NodeFunctions()
@@ -145,6 +147,7 @@ class DataFunctions():
 
         for path in paths:
             log( " - Attempting to load file %s" %( path ) )
+            path = try_decode( path )
             tree = None
             if xbmcvfs.exists( path ):
                 file = xbmcvfs.File( path ).read()
@@ -439,6 +442,8 @@ class DataFunctions():
         # This function will get any icon overrides based on labelID or group
         if icon is None:
             return
+
+        icon = try_decode( icon )
 
         # If the icon is a VAR or an INFO, we aren't going to override
         if icon.startswith( "$" ):
@@ -1112,10 +1117,10 @@ class DataFunctions():
     def _save_hash( self, filename, file ):
         if file is not None:
             hasher = hashlib.md5()
-            hasher.update( file.encode('utf-8') )
-            hashlist.list.append( [filename, hasher.hexdigest()] )
+            hasher.update(xbmcvfs.File(filename).read().encode("utf-8"))
+            hashlist.list.append([filename, hasher.hexdigest()])
         else:
-            hashlist.list.append( [filename, None] )
+            hashlist.list.append([filename, None])
 
 
     # in-place prettyprint formatter
@@ -1148,10 +1153,14 @@ class DataFunctions():
         if data is None:
             return ["","","",""]
 
+        data = try_decode( data )
+
         skinid = None
         lasttranslation = None
 
         # Get just the integer of the string, for the input forms where this is valid
+        data = try_decode(data)
+
         if not data.find( "::SCRIPT::" ) == -1:
             data = data[10:]
         elif not data.find( "::LOCAL::" ) == -1:
@@ -1225,6 +1234,25 @@ class DataFunctions():
         if convertInteger and text.isdigit():
             text = "NUM-" + text
 
+        # text to unicode
+        if sys.version_info.major == 3:
+            if type(text) != str:
+                text = str(text, 'utf-8', 'ignore')
+        else:
+            if type(text) != types.UnicodeType:
+                text = unicode(text, 'utf-8', 'ignore')
+
+        # decode unicode ( ??? = Ying Shi Ma)
+        text = unidecode(text)
+
+        # text back to unicode
+        if sys.version_info.major == 3:
+            if type(text) != str:
+                text = str(text, 'utf-8', 'ignore')
+        else:
+            if type(text) != types.UnicodeType:
+                text = unicode(text, 'utf-8', 'ignore')
+
         # character entity reference
         if entities:
             text = CHAR_ENTITY_REXP.sub(lambda m: unichr(name2codepoint[m.group(1)]), text)
@@ -1245,6 +1273,8 @@ class DataFunctions():
 
         # translate
         text = unicodedata.normalize('NFKD', text)
+        if sys.version_info < (3,):
+            text = text.encode('ascii', 'ignore')
 
         # replace unwanted characters
         text = REPLACE1_REXP.sub('', text.lower()) # replace ' with nothing instead with -

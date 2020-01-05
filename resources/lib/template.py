@@ -1,5 +1,5 @@
 # coding=utf-8
-import os
+import os, sys
 import xbmc, xbmcaddon, xbmcvfs
 import xml.etree.ElementTree as xmltree
 import hashlib, hashlist
@@ -904,10 +904,10 @@ class Template():
     def _save_hash( self, filename, file ):
         if file is not None:
             hasher = hashlib.md5()
-            hasher.update( file.encode('utf-8') )
-            hashlist.list.append( [filename, hasher.hexdigest()] )
+            hasher.update(file.encode("utf8"))
+            hashlist.list.append([filename.encode("utf8"), hasher.hexdigest()])
         else:
-            hashlist.list.append( [filename, None] )
+            hashlist.list.append([filename.encode("utf8"), None])
 
     def copy_tree( self, elem ):
         if elem is None: return None
