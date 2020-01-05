@@ -608,12 +608,12 @@ class LibraryFunctions():
         # If the icon starts with a $, ask Kodi to parse it for us
         displayIcon = icon
         iconIsVar = False
-        if icon.startswith("$"):
+        if str(icon).startswith("$"):
             displayIcon = xbmc.getInfoLabel( icon )
             iconIsVar = True
 
         #special treatment for image resource addons
-        if icon.startswith("resource://"):
+        if str(icon).startswith("resource://"):
             iconIsVar = True
 
         # If the skin doesn't have the icon, replace it with DefaultShortcut.png
@@ -636,7 +636,7 @@ class LibraryFunctions():
         listitem.setProperty( "defaultLabel", labelID )
 
         if displayIcon != icon:
-            listitem.setProperty( "untranslatedIcon", icon )
+            listitem.setProperty( "untranslatedIcon", str(icon) )
 
         return( listitem )
 
