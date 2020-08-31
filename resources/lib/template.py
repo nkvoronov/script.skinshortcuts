@@ -1,28 +1,23 @@
-# coding=utf-8
 import os, sys
 import xbmc, xbmcaddon, xbmcvfs
 import xml.etree.ElementTree as xmltree
-import hashlib, hashlist
+import hashlib
 import copy
 from traceback import print_exc
-import simpleeval, operator, ast
+import simpleeval
+import operator, ast
 from simpleeval import simple_eval
 
 ADDON        = xbmcaddon.Addon()
 ADDONID      = ADDON.getAddonInfo('id')
 SKINPATH     = xbmc.translatePath( "special://skin/shortcuts/" )
 
-STRINGCOMPARE = "StringCompare"
-if int( xbmc.getInfoLabel( "System.BuildVersion" ).split(".")[0] ) >= 17:
-    STRINGCOMPARE = "String.IsEqual"
+hashlist = []
 
 def log(txt):
     if ADDON.getSetting( "enable_logging" ) == "true":
-        try:
             message = u'%s: %s' % (ADDONID, txt)
             xbmc.log(msg=message, level=xbmc.LOGDEBUG)
-        except:
-            pass
 
 class Template():
     def __init__( self ):
@@ -141,7 +136,7 @@ class Template():
                         visibilityName = element.text
                         break
 
-                finalVisibility = "%s(Container(%s).ListItem.Property(submenuVisibility),%s)" %( STRINGCOMPARE, mainmenuID, visibilityName )
+                finalVisibility = "String.IsEqual(Container(%s).ListItem.Property(submenuVisibility),%s)" %(mainmenuID, visibilityName)
             else:
                 # First we need to build the visibilityCondition, based on the visibility condition
                 # passed in, and the submenuVisibility element
@@ -156,7 +151,7 @@ class Template():
                 if visibilityName.isdigit() and xbmc.getLocalizedString(int(visibilityName)) != "":
                     visibilityName = "$LOCALIZE[%s]" %(visibilityName)
 
-                finalVisibility = "[%s + %s(Container(::SUBMENUCONTAINER::).ListItem.Property(labelID),%s)]" %( visibilityCondition, STRINGCOMPARE, visibilityName )
+                finalVisibility = "[%s + String.IsEqual(Container(::SUBMENUCONTAINER::).ListItem.Property(labelID),%s)]" %(visibilityCondition, visibilityName)
 
             # Now find a matching template - if one matches, it will be saved to be processed
             # at the end (when we have all visibility conditions)
@@ -218,7 +213,7 @@ class Template():
                     for variable in variables.findall( "variable" ):
                         # If the profile doesn't have a dict in finalVariables, create one
                         profileVisibility = profile.attrib.get( "visible" )
-                        if profileVisibility not in finalVariables.keys():
+                        if profileVisibility not in list(finalVariables.keys()):
                             finalVariables[ profileVisibility ] = {}
 
                         # Save the variable name
@@ -228,7 +223,7 @@ class Template():
 
                         # Get any existing values for this profile + variable
                         newVariables = []
-                        if varName in finalVariables[ profileVisibility ].keys():
+                        if varName in list(finalVariables[profileVisibility].keys()):
                             newVariables = finalVariables[ profileVisibility ][ varName ]
 
                         # Loop through new values provided by this template
@@ -269,7 +264,7 @@ class Template():
         # Firstly, lets pull out the specific variables from all the variables we've been passed
         limitedVariables = {}
         for profile in allVariables:
-            if variableName in allVariables[ profile ].keys():
+            if variableName in list(allVariables[profile].keys()):
                 limitedVariables[ profile ] = allVariables[ profile ][ variableName ]
 
         numProfiles = len( limitedVariables )
@@ -714,7 +709,7 @@ class Template():
         # Combines an existing set of properties with additional properties
         newProperties = self.getProperties( elem, items )
         for propertyName in newProperties:
-            if propertyName in currentProperties.keys():
+            if propertyName in list(currentProperties.keys()):
                 continue
             currentProperties[ propertyName ] = newProperties[ propertyName ]
 
@@ -905,9 +900,9 @@ class Template():
         if file is not None:
             hasher = hashlib.md5()
             hasher.update(file.encode("utf8"))
-            hashlist.list.append([filename.encode("utf8"), hasher.hexdigest()])
+            hashlist.append([filename.encode("utf8"), hasher.hexdigest()])
         else:
-            hashlist.list.append([filename.encode("utf8"), None])
+            hashlist.append([filename.encode("utf8"), None])
 
     def copy_tree( self, elem ):
         if elem is None: return None

@@ -1,23 +1,19 @@
-# coding=utf-8
 import os, sys, datetime, unicodedata, re, types
-import xbmc, xbmcaddon, xbmcgui, xbmcvfs
-import urllib.parse as urllib
+import xbmc, xbmcaddon, xbmcgui, xbmcvfs, urllib
 import xml.etree.ElementTree as xmltree
-import hashlib, hashlist
-import pickle
+import hashlib
 from xml.dom.minidom import parse
 from traceback import print_exc
-from html.entities import name2codepoint
 from unidecode import unidecode
-from unicodeutils import try_decode
 import json as simplejson
+import pickle
+from html.entities import name2codepoint
 
 ADDON        = xbmcaddon.Addon()
 ADDONID      = ADDON.getAddonInfo('id')
-KODIVERSION  = xbmc.getInfoLabel( "System.BuildVersion" ).split(".")[0]
 LANGUAGE     = ADDON.getLocalizedString
 CWD          = ADDON.getAddonInfo('path')
-DATAPATH     = os.path.join( xbmc.translatePath( "special://profile/addon_data/" ), ADDONID )
+DATAPATH     = os.path.join(xbmc.translatePath("special://profile/"), "addon_data", ADDONID)
 
 # character entity reference
 CHAR_ENTITY_REXP = re.compile('&(%s);' % '|'.join(name2codepoint))
@@ -34,11 +30,8 @@ REMOVE_REXP = re.compile('-{2,}')
 
 def log(txt):
     if ADDON.getSetting( "enable_logging" ) == "true":
-        try:
             message = u'%s: %s' % (ADDONID, txt)
             xbmc.log(msg=message, level=xbmc.LOGDEBUG)
-        except:
-            pass
 
 class NodeFunctions():
     def __init__(self):
@@ -106,7 +99,6 @@ class NodeFunctions():
 
             # Get label and icon
             label = root.find( "label" ).text
-
             icon = root.find( "icon" )
             if icon is not None:
                 icon = icon.text
@@ -206,10 +198,10 @@ class NodeFunctions():
         # Next check if there is a parent node
         if path.endswith( "/" ): path = path[ :-1 ]
         path = path.rsplit( "/", 1 )[ 0 ]
-
         customPath = path.replace( pathStart, os.path.join( xbmc.translatePath( "special://profile" ), "library", pathEnd ) ) + "/index.xml"
         defaultPath = path.replace( pathStart, os.path.join( xbmc.translatePath( "special://xbmc" ), "system", "library", pathEnd ) ) + "/index.xml"
         nodeParent = None
+
         if xbmcvfs.exists( customPath ):
             nodeParent = customPath
         elif xbmcvfs.exists( defaultPath ):
@@ -308,19 +300,15 @@ class NodeFunctions():
         jsonPath = path.replace( "\\", "\\\\" )
 
         json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Files.GetDirectory", "params": { "properties": ["title", "file", "thumbnail"], "directory": "' + jsonPath + '", "media": "files" } }')
+        json_query = unicode(json_query, 'utf-8', errors='ignore')
         json_response = simplejson.loads(json_query)
 
         labels = []
         paths = []
         nodePaths = []
 
-        # Now we've retrieved the path, decode everything for writing
-        path = try_decode( path )
-        label = try_decode( label )
-        icon = try_decode( icon )
-
         # Add all directories returned by the json query
-        if ('result' in json_response) and ('files' in json_response['result']) and (json_response['result']['files'] is not None):
+        if 'result' in json_response and 'files' in json_response['result'] and json_response['result']['files'] is not None:
             labels = [ LANGUAGE(32058) ]
             paths = [ "ActivateWindow(%s,%s,return)" %( window, path ) ]
             for item in json_response['result']['files']:
@@ -364,9 +352,8 @@ class NodeFunctions():
         DATA._clear_labelID()
         for menuitem in menuitems.findall( "shortcut" ):
             # Get existing items labelID's
-            listitem = xbmcgui.ListItem(label=DATA.local( menuitem.find( "label" ).text )[2])
-            listitem.setArt({"icon": menuitem.find( "icon" ).text})
-            allMenuItems.append( listitem )
+            allMenuItems.append(xbmcgui.ListItem(label=DATA.local( menuitem.find( "label" ).text )[2]))
+            listitem.setArt({'icon': menuitem.find("icon").text})
             allLabelIDs.append( DATA._get_labelID( DATA.local( menuitem.find( "label" ).text )[3], menuitem.find( "action" ).text ) )
 
         # Close progress dialog
@@ -459,12 +446,6 @@ class NodeFunctions():
         if not group:
             group = "mainmenu"
 
-        # Decode values
-        properties = try_decode( properties )
-        values = try_decode( values )
-        labelID = try_decode( labelID )
-        group = try_decode( group )
-
         # Split up property names and values
         propertyNames = properties.split( "|" )
         propertyValues = values.replace( "::INFO::", "$INFO" ).split( "|" )
@@ -499,10 +480,10 @@ class NodeFunctions():
         allProps[ group ] = {}
         for currentProperty in currentProperties:
             # If the group isn't in allProps, add it
-            if currentProperty[ 0 ] not in allProps.keys():
+            if currentProperty[ 0 ] not in list(allProps.keys()):
                 allProps[ currentProperty [ 0 ] ] = {}
             # If the labelID isn't in the allProps[ group ], add it
-            if currentProperty[ 1 ] not in allProps[ currentProperty[ 0 ] ].keys():
+            if currentProperty[1] not in list(allProps[currentProperty[0]].keys()):
                 allProps[ currentProperty[ 0 ] ][ currentProperty[ 1 ] ] = {}
             # And add the property to allProps[ group ][ labelID ]
             if currentProperty[ 3 ] is not None:
@@ -514,13 +495,13 @@ class NodeFunctions():
             log( "Setting %s to %s" %( propertyName, propertyValues[ count ] ) )
             if len( labelIDValues ) != 1:
                 labelID = labelIDValues[ count ]
-            if labelID not in allProps[ group ].keys():
+            if labelID not in list(allProps[group].keys()):
                 allProps[ group ][ labelID ] = {}
             allProps[ group ][ labelID ][ propertyName ] = propertyValues[ count ]
 
             # Remove any properties whose requirements haven't been met
             for key in otherProperties:
-                if key in allProps[ group ][ labelID ].keys() and key in requires.keys() and requires[ key ] not in allProps[ group ][ labelID ].keys():
+                if key in list(allProps[group][labelID].keys()) and key in list(requires.keys()) and requires[key] not in list(allProps[group][labelID].keys()):
                     # This properties requirements aren't met
                     log( "Removing value %s" %( key ) )
                     allProps[ group ][ labelID ].pop( key )
@@ -583,16 +564,12 @@ class ShowDialog( xbmcgui.WindowXMLDialog ):
         self.getControl(1).setLabel(self.windowtitle)
 
         # Set Cancel label (Kodi 17+)
-        if int( KODIVERSION ) >= 17:
-            try:
-                self.getControl(7).setLabel(xbmc.getLocalizedString(222))
-            except:
-                log( "Unable to set label for control 7" )
+        self.getControl(7).setLabel(xbmc.getLocalizedString(222))
 
         for item in self.listing :
             listitem = xbmcgui.ListItem(label=item.getLabel(), label2=item.getLabel2())
-            listitem.setArt({"icon": item.getProperty("icon")})
-            listitem.setArt({"thumb": item.getProperty("thumbnail")})
+            listitem.setArt({'icon': item.getProperty("icon")})
+            listitem.setArt({'thumb': item.getProperty("thumbnail")})
             listitem.setProperty( "Addon.Summary", item.getLabel2() )
             self.fav_list.addItem( listitem )
 

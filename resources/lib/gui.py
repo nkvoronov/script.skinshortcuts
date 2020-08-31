@@ -1,54 +1,45 @@
 # coding=utf-8
 import os, sys, datetime, unicodedata
-import xbmc, xbmcgui, xbmcvfs
-import urllib.parse as urllib
+import xbmc, xbmcaddon, xbmcgui, xbmcvfs
 import xml.etree.ElementTree as xmltree
 from xml.dom.minidom import parse
 from xml.sax.saxutils import escape as escapeXML
-import _thread as thread
 from traceback import print_exc
-from unicodeutils import try_decode
 import calendar
 from time import gmtime, strftime
 import random
 import json as simplejson
+import urllib.request, urllib.parse, urllib.error
+import _thread as thread
 
-import datafunctions
+from resources.lib import datafunctions
 DATA = datafunctions.DataFunctions()
 
-import library
+from resources.lib import library
 LIBRARY = library.LibraryFunctions()
 
-ADDON        = sys.modules[ "__main__" ].ADDON
-ADDONID      = sys.modules[ "__main__" ].ADDONID
-CWD          = sys.modules[ "__main__" ].CWD
+ADDON        = xbmcaddon.Addon()
+ADDONID      = ADDON.getAddonInfo('id')
+CWD          = ADDON.getAddonInfo('path')
+LANGUAGE     = ADDON.getLocalizedString
 DATAPATH     = os.path.join( xbmc.translatePath( "special://profile/addon_data/" ), ADDONID )
 SKINPATH     = xbmc.translatePath( "special://skin/shortcuts/" )
 DEFAULTPATH  = xbmc.translatePath( os.path.join( CWD, 'resources', 'shortcuts') )
-LANGUAGE     = ADDON.getLocalizedString
-KODIVERSION  = xbmc.getInfoLabel( "System.BuildVersion" ).split(".")[0]
 
 ACTION_CANCEL_DIALOG = ( 9, 10, 92, 216, 247, 257, 275, 61467, 61448, )
 ACTION_CONTEXT_MENU = ( 117, )
-
-ISEMPTY = "IsEmpty"
-if int( KODIVERSION ) >= 17:
-    ISEMPTY = "String.IsEmpty"
 
 if not xbmcvfs.exists(DATAPATH):
     xbmcvfs.mkdir(DATAPATH)
 
 def log(txt):
     if ADDON.getSetting( "enable_logging" ) == "true":
-        try:
+        if not isinstance (txt,str):
+            txt = txt.decode('utf-8')
             message = u'%s: %s' % (ADDONID, txt)
             xbmc.log(msg=message, level=xbmc.LOGDEBUG)
-        except:
-            pass
 
 def is_hebrew(text):
-    if not isinstance(text, str):
-        text = text.decode('utf-8')
     for chr in text:
         if ord(chr) >= 1488 and ord(chr) <= 1514:
             return True
@@ -143,19 +134,19 @@ class GUI( xbmcgui.WindowXMLDialog ):
             # Set enabled condition for various controls
             has111 = True
             try:
-                self.getControl( 111 ).setEnableCondition( "%s(Container(211).ListItem.Property(LOCKED))" %( ISEMPTY ) )
+                self.getControl(111).setEnableCondition("String.IsEmpty(Container(211).ListItem.Property(LOCKED))")
             except:
                 has111 = False
             try:
-                self.getControl( 302 ).setEnableCondition( "%s(Container(211).ListItem.Property(LOCKED))" %( ISEMPTY ) )
+                self.getControl(302).setEnableCondition("String.IsEmpty(Container(211).ListItem.Property(LOCKED))")
             except:
                 pass
             try:
-                self.getControl( 307 ).setEnableCondition( "%s(Container(211).ListItem.Property(LOCKED))" %( ISEMPTY ) )
+                self.getControl(307).setEnableCondition("String.IsEmpty(Container(211).ListItem.Property(LOCKED))")
             except:
                 pass
             try:
-                self.getControl( 401 ).setEnableCondition( "%s(Container(211).ListItem.Property(LOCKED))" %( ISEMPTY ) )
+                self.getControl(401).setEnableCondition("String.IsEmpty(Container(211).ListItem.Property(LOCKED))")
             except:
                 pass
 
@@ -301,7 +292,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         # If there are no shortcuts, add a blank one
         if visible == False:
             listitem = xbmcgui.ListItem(LANGUAGE(32013))
-            listitem.setArt({"icon": "DefaultShortcut.png"})
+            listitem.setArt({'icon': "DefaultShortcut.png"})
             listitem.setProperty( "Path", 'noop' )
             listitem.setProperty( "icon", "DefaultShortcut.png" )
             listitem.setProperty( "skinshortcuts-orderindex", str( count ) )
@@ -341,8 +332,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
 
         # Create the list item
         listitem = xbmcgui.ListItem(label=localLabel[2], label2 = localLabel2[2])
-        listitem.setArt({"icon": xbmc.getInfoLabel(icon)})
-        listitem.setArt({"thumb": xbmc.getInfoLabel(thumb)})
+        listitem.setArt({'icon': xbmc.getInfoLabel(icon)})
+        listitem.setArt({'thumb': xbmc.getInfoLabel(thumb)})
         listitem.setProperty( "localizedString", localLabel[0] )
         listitem.setProperty( "icon", icon )
         listitem.setProperty( "thumbnail", thumb )
@@ -366,7 +357,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         # If there's an overriden icon, use it
         overridenIcon = item.find( "override-icon" )
         if overridenIcon is not None:
-            listitem.setArt({"icon": overridenIcon.text})
+            listitem.setArt({'icon': overridenIcon.text})
             listitem.setProperty( "icon", overridenIcon.text )
             listitem.setProperty( "original-icon", icon )
 
@@ -442,14 +433,14 @@ class GUI( xbmcgui.WindowXMLDialog ):
 
         # Add fallback properties
         for key in fallbackProperties:
-            if key not in allProps.keys():
+            if key not in list(allProps.keys()):
                 # Check whether we have a fallback for the value
                 for propertyMatch in fallbacks[ key ]:
                     matches = False
                     if propertyMatch[ 1 ] is None:
                         # This has no conditions, so it matched
                         matches = True
-                    elif propertyMatch[ 1 ] in allProps.keys() and allProps[ propertyMatch[ 1 ] ] == propertyMatch[ 2 ]:
+                    elif propertyMatch[1] in list(allProps.keys()) and allProps[propertyMatch[1]] == propertyMatch[2]:
                         matches = True
 
                     if matches:
@@ -461,10 +452,10 @@ class GUI( xbmcgui.WindowXMLDialog ):
 
         # Remove any properties whose requirements haven't been met
         for key in otherProperties:
-            if key in allProps.keys() and key in requires.keys() and requires[ key ] not in allProps.keys():
+            if key in list(allProps.keys()) and key in list(requires.keys()) and requires[key] not in list(allProps.keys()):
                 # This properties requirements aren't met
                 allProps.pop( key )
-                if "%s-NUM" %( key ) in allProps.keys():
+                if "%s-NUM" %(key) in list(allProps.keys()):
                     allProps.pop( "%s-NUM" %( key ) )
 
         # Save the new properties to the listitem
@@ -473,7 +464,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         for key in added:
             listitem.setProperty( key, allProps[ key ] )
         for key in removed:
-            if key not in allProps.keys(): continue
+            if key not in list(allProps.keys()): continue
             listitem.setProperty( key, None )
         for key in changed:
             listitem.setProperty( key, allProps[ key ] )
@@ -518,7 +509,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             listitem.setProperty( "untranslatedIcon", icon )
             icon = xbmc.getInfoLabel( icon )
             listitem.setProperty( "icon", icon )
-            listitem.setArt({"icon": icon})
+            listitem.setArt({'icon': 'icon'})
             iconIsVar = True
         if icon.startswith("resource://"):
             iconIsVar = True
@@ -550,7 +541,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
 
         # If we changed the icon, update the listitem
         if oldicon is not None:
-            listitem.setArt({"icon": icon})
+            listitem.setArt({'icon': 'icon'})
             listitem.setProperty( "icon", icon )
             listitem.setProperty( "original-icon", oldicon )
 
@@ -598,7 +589,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
 
         enabledSystemDebug = False
         enabledScriptDebug = False
-        if ('result' in json_response) and ('settings' in json_response['result']) and (json_response['result']['settings'] is not None):
+        if 'result' in json_response and 'settings' in json_response['result'] and json_response['result']['settings'] is not None:
             for item in json_response['result']['settings']:
                 if item["id"] == "debug.showloginfo":
                     if item["value"] == False:
@@ -641,13 +632,13 @@ class GUI( xbmcgui.WindowXMLDialog ):
             for listitem in self.allListItems:
 
                 # If the item has a label or an action, or a specified property from the override is present
-                if try_decode( listitem.getLabel() ) != LANGUAGE(32013) or listitem.getProperty( "path" ) != "noop" or self.hasSaveWithProperty( listitem ):
+                if listitem.getLabel() != LANGUAGE(32013) or listitem.getProperty("path") != "noop" or self.hasSaveWithProperty(listitem):
                     # Generate labelID, and mark if it has changed
                     labelID = listitem.getProperty( "labelID" )
                     newlabelID = labelID
 
                     # defaultID
-                    defaultID = try_decode( listitem.getProperty( "defaultID" ) )
+                    defaultID = listitem.getProperty("defaultID")
 
                     localizedString = listitem.getProperty( "localizedString" )
                     if localizedString is None or localizedString == "":
@@ -678,11 +669,11 @@ class GUI( xbmcgui.WindowXMLDialog ):
 
                     thumb = listitem.getProperty( "thumbnail" )
 
-                    xmltree.SubElement( shortcut, "icon" ).text = try_decode( icon )
-                    xmltree.SubElement( shortcut, "thumb" ).text = try_decode( thumb )
+                    xmltree.SubElement(shortcut, "icon").text = icon
+                    xmltree.SubElement(shortcut, "thumb").text = thumb
 
                     # Action
-                    xmltree.SubElement( shortcut, "action" ).text = try_decode( listitem.getProperty( "path" ) )
+                    xmltree.SubElement(shortcut, "action").text = listitem.getProperty("path")
 
                     # Visible
                     if listitem.getProperty( "visible-condition" ):
@@ -713,7 +704,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
             # Save the shortcuts
             DATA.indent( root )
             path = os.path.join( DATAPATH , DATA.slugify( self.group, True, isSubLevel = isSubLevel ) + ".DATA.xml" )
-            path = try_decode( path )
 
             tree.write( path.replace( ".shortcuts", ".DATA.xml" ), encoding="UTF-8"  )
 
@@ -746,18 +736,14 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 for i in range( 0, 6 ):
                     if i == 0:
                         groupName = labelIDFrom
-                        paths = [[os.path.join( DATAPATH, DATA.slugify( labelIDFrom, True ) + ".DATA.xml" ).encode( "utf-8" ), "Move"], [os.path.join( SKINPATH, DATA.slugify( defaultIDFrom ) + ".DATA.xml" ).encode( "utf-8" ), "Copy"], [os.path.join( DEFAULTPATH, DATA.slugify( defaultIDFrom ) + ".DATA.xml" ).encode( "utf-8" ), "Copy"], [None, "New"]]
-                        target = os.path.join( DATAPATH, DATA.slugify( labelIDTo, True ) + ".DATA.xml" ).encode( "utf-8" )
+                        paths = [[os.path.join(DATAPATH, DATA.slugify(labelIDFrom, True ) + ".DATA.xml"), "Move"], [os.path.join(SKINPATH, DATA.slugify(defaultIDFrom) + ".DATA.xml"), "Copy"], [os.path.join(DEFAULTPATH, DATA.slugify(defaultIDFrom) + ".DATA.xml"), "Copy"], [None, "New"]]
+                        target = os.path.join(DATAPATH, DATA.slugify(labelIDTo, True) + ".DATA.xml")
                     else:
                         groupName = "%s.%s" %( labelIDFrom, str( i ) )
-                        paths = [[os.path.join( DATAPATH, DATA.slugify( "%s.%s" %( labelIDFrom, str( i )), True, isSubLevel = True ) + ".DATA.xml" ).encode( "utf-8" ), "Move"], [os.path.join( SKINPATH, DATA.slugify( "%s.%s" %( defaultIDFrom, str( i ) ), isSubLevel = True ) + ".DATA.xml" ).encode( "utf-8" ), "Copy"], [os.path.join( DEFAULTPATH, DATA.slugify( "%s.%s" %( defaultIDFrom, str( i ) ), isSubLevel = True ) + ".DATA.xml" ).encode( "utf-8" ), "Copy"]]
-                        target = os.path.join( DATAPATH, DATA.slugify( "%s.%s" %( labelIDTo, str( i ) ), True, isSubLevel = True ) + ".DATA.xml" ).encode( "utf-8" )
-
-                    target = try_decode( target )
+                        paths = [[os.path.join(DATAPATH, DATA.slugify("%s.%s" %(labelIDFrom, str( i )), True, isSubLevel = True) + ".DATA.xml"), "Move"], [os.path.join(SKINPATH, DATA.slugify("%s.%s" %(defaultIDFrom, str(i)), isSubLevel = True) + ".DATA.xml"), "Copy"], [os.path.join(DEFAULTPATH, DATA.slugify("%s.%s" %(defaultIDFrom, str(i)), isSubLevel = True) + ".DATA.xml"), "Copy"]]
+                        target = os.path.join(DATAPATH, DATA.slugify("%s.%s" %(labelIDTo, str(i)), True, isSubLevel = True) + ".DATA.xml")
 
                     for path in paths:
-                        path[0] = try_decode( path[0] )
-                        path[1] = try_decode( path[1] )
 
                         if path[1] == "New":
                             tree = xmltree.ElementTree( xmltree.Element( "shortcuts" ) )
@@ -828,12 +814,12 @@ class GUI( xbmcgui.WindowXMLDialog ):
         for property in currentProperties:
             #[ groupname, itemLabelID, property, value ]
             if not property[0] == self.group:
-                if property[0] in labelIDChanges.keys():
+                if property[0] in list(labelIDChanges.keys()):
                     property[0] = labelIDChanges[property[0]]
                 elif "." in property[0] and property[ 0 ].rsplit( ".", 1 )[ 1 ].isdigit():
                     # Additional menu
                     groupName, groupValue = property[ 0 ].rsplit( ".", 1 )
-                    if groupName in labelIDChanges.keys() and int( groupValue ) in range( 1, 6 ):
+                    if groupName in list(labelIDChanges.keys()) and int(groupValue) in range(1, 6):
                         property[0] = "%s.%s" %( labelIDChanges[ groupName ], groupValue )
                 saveData.append( property )
 
@@ -925,11 +911,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
 
     def _load_overrides_context( self ):
         # Load context menu settings from overrides
-
-        # Check we're running Krypton or later - we don't support the context menu on earlier versions
-        if int( KODIVERSION ) <= 16:
-            return
-
         for overrideType in [ "skin", "script" ]:
             # Load overrides
             if overrideType == "skin":
@@ -1271,12 +1252,12 @@ class GUI( xbmcgui.WindowXMLDialog ):
             oldlabelID = listitem.getProperty( "labelID" )
 
             # If the item is blank, set the current label to empty
-            if try_decode( label ) == LANGUAGE(32013):
+            if label == LANGUAGE(32013):
                 label = ""
 
             # Get new label from keyboard dialog
             if is_hebrew(label):
-                label = label.decode('utf-8')[::-1]
+                label = label[::-1]
             keyboard = xbmc.Keyboard( label, xbmc.getLocalizedString(528), False )
             keyboard.doModal()
             if ( keyboard.isConfirmed() ):
@@ -1302,7 +1283,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             if custom_thumbnail:
                 # Update the thumbnail
                 self.changeMade = True
-                listitem.setArt({"thumb": custom_thumbnail})
+                listitem.setArt({'thumb': custom_thumbnail})
                 listitem.setProperty( "thumbnail", custom_thumbnail )
             else:
                 return
@@ -1332,9 +1313,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 return
 
             if selectedShortcut.getProperty( "chosenPath" ):
-                action = try_decode( selectedShortcut.getProperty( "chosenPath" ) )
+                action = selectedShortcut.getProperty("chosenPath")
             elif selectedShortcut.getProperty( "path" ):
-                action = try_decode(selectedShortcut.getProperty( "path" ))
+                action = selectedShortcut.getProperty("path")
 
             if action == "":
                 action = "noop"
@@ -1603,8 +1584,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     keyboard = xbmc.Keyboard( widgetTempName, xbmc.getLocalizedString(16105), False )
                     keyboard.doModal()
                     if ( keyboard.isConfirmed() ) and keyboard.getText() != "":
-                        if widgetTempName != try_decode( keyboard.getText() ):
-                            widgetName = try_decode( keyboard.getText() )
+                        if widgetTempName != keyboard.getText():
+                            widgetName = keyboard.getText()
 
                 # Add any necessary reload parameter
                 widgetPath = LIBRARY.addWidgetReload( selectedShortcut.getProperty( "widgetPath" ) )
@@ -1807,7 +1788,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
 
             elif self.thumbnailNone and selectedThumbnail == 0:
                 # User has chosen 'None'
-                listitem.setArt({"thumb": None})
+                listitem.setArt({'thumb': None})
                 listitem.setProperty( "thumbnail", None )
 
             elif (not self.thumbnailNone and selectedThumbnail == 0) or (self.thumbnailNone and selectedThumbnail == 1):
@@ -1820,7 +1801,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     custom_image = imagedialog.browse( 2 , xbmc.getLocalizedString(1030), 'files', '', True, False, self.backgroundBrowseDefault)
 
                 if custom_image:
-                    listitem.setArt({"thumb": custom_image})
+                    listitem.setArt({'thumb': custom_image})
                     listitem.setProperty( "thumbnail", custom_image )
                 else:
                     # User cancelled
@@ -1828,7 +1809,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
 
             else:
                 # User has selected a normal thumbnail
-                listitem.setArt({"thumb": thumbnail[selectedThumbnail]})
+                listitem.setArt({'thumb': thumbnail[selectedThumbnail]})
                 listitem.setProperty( "thumbnail", thumbnail[ selectedThumbnail ] )
             self.changeMade = True
 
@@ -1967,8 +1948,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
 
             # Execute the script
             self.currentWindow.setProperty( "additionalDialog", "True" )
-            import gui
-            ui= gui.GUI( "script-skinshortcuts.xml", CWD, "default", group=launchGroup, defaultGroup=launchDefaultGroup, nolabels=self.nolabels, groupname=groupName )
+            ui= GUI( "script-skinshortcuts.xml", CWD, "default", group=launchGroup, defaultGroup=launchDefaultGroup, nolabels=self.nolabels, groupname=groupName )
             ui.doModal()
             del ui
             self.currentWindow.clearProperty( "additionalDialog" )
@@ -2009,8 +1989,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
 
                 if propertyName == "thumb":
                     # Special treatment if we try to set the thumb with the property method
-                    listitem.setArt({"thumb": xbmc.getInfoLabel(propertyValue)})
-                    listitem.setArt({"icon": xbmc.getInfoLabel(propertyValue)})
+                    listitem.setArt({'thumb': xbmc.getInfoLabel(propertyValue)})
+                    listitem.setArt({'icon': xbmc.getInfoLabel(propertyValue)})
                     listitem.setProperty( "thumbnail", propertyValue )
                     listitem.setProperty( "icon", propertyValue )
                     if not propertyValue:
@@ -2172,8 +2152,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
     def _duplicate_listitem( self, listitem, originallistitem = None ):
         # Create a copy of an existing listitem
         listitemCopy = xbmcgui.ListItem(label=listitem.getLabel(), label2=listitem.getLabel2())
-        listitem.setArt({"icon": listitem.getProperty("icon")})
-        listitem.setArt({"thumb": listitem.getProperty("thumbnail")})
+        listitem.setArt({'icon': listitem.getProperty("icon")})
+        listitem.setArt({'thumb': listitem.getProperty("thumbnail")})
         listitemCopy.setProperty( "path", listitem.getProperty("path") )
         listitemCopy.setProperty( "displaypath", listitem.getProperty("path") )
         listitemCopy.setProperty( "icon", listitem.getProperty("icon") )
@@ -2195,7 +2175,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         # If the item has an untranslated icon, set the icon image to it
         if listitem.getProperty( "untranslatedIcon" ):
             icon = listitem.getProperty( "untranslatedIcon" )
-            listitemCopy.setArt({"icon": icon})
+            listitemCopy.setArt({'icon': 'icon'})
             listitemCopy.setProperty( "icon", icon )
 
         # Revert to original icon (because we'll override it again in a minute!)
@@ -2203,7 +2183,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             icon = listitem.getProperty( "original-icon" )
             if icon == "":
                 icon = None
-            listitemCopy.setArt({"icon": icon})
+            listitemCopy.setArt({'icon': 'icon'})
             listitemCopy.setProperty( "icon", icon )
 
         # If we've haven't been passed an originallistitem, set the following from the listitem we were passed

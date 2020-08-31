@@ -5,23 +5,20 @@ import xml.etree.ElementTree as xmltree
 from xml.sax.saxutils import escape as escapeXML
 import ast
 from traceback import print_exc
-from unicodeutils import try_decode
 import json as simplejson
 
 ADDON        = xbmcaddon.Addon()
-ADDONID      = sys.modules[ "__main__" ].ADDONID
+ADDONID      = ADDON.getAddonInfo('id')
 ADDONVERSION = ADDON.getAddonInfo('version')
 KODIVERSION  = xbmc.getInfoLabel( "System.BuildVersion" ).split(".")[0]
-MASTERPATH   = os.path.join( xbmc.translatePath( "special://masterprofile/addon_data/" ), ADDONID )
 LANGUAGE     = ADDON.getLocalizedString
+MASTERPATH   = os.path.join(xbmc.translatePath("special://masterprofile/addon_data/"), ADDONID)
 
-STRINGCOMPARE = "StringCompare"
-if int( KODIVERSION ) >= 17:
-    STRINGCOMPARE = "String.IsEqual"
-
-import datafunctions, template
+from resources.lib import datafunctions, template
 DATA = datafunctions.DataFunctions()
-import hashlib, hashlist
+import hashlib
+
+hashlist = []
 
 def log(txt):
     if ADDON.getSetting( "enable_logging" ) == "true":
@@ -64,13 +61,13 @@ class XMLFunctions():
                 name = profile.find( "name" ).text
                 dir = profile.find( "directory" ).text
                 log( "Profile found: " + name + " (" + dir + ")" )
+
                 # Localise the directory
                 if "://" in dir:
                     dir = xbmc.translatePath( dir )
-                else:
-                    # Base if off of the master profile
-                    dir = xbmc.translatePath( os.path.join( "special://masterprofile", dir ) )
-                profilelist.append( [ dir, "%s(System.ProfileName,%s)" %( STRINGCOMPARE, name ), name ] )
+                # Base if off of the master profile
+                dir = xbmc.translatePath( os.path.join( "special://masterprofile", dir ) )
+                profilelist.append([dir, "String.IsEqual(System.ProfileName,%s)" %(name), name])
 
         else:
             profilelist = [["special://masterprofile", None]]
@@ -101,7 +98,7 @@ class XMLFunctions():
 
         if complete == True:
             # Menu is built, reload the skin
-            xbmc.executebuiltin( "XBMC.ReloadSkin()" )
+            xbmc.executebuiltin("ReloadSkin()")
         else:
             # Menu couldn't be built - generate a debug log
 
@@ -115,11 +112,11 @@ class XMLFunctions():
 
                 # Offer to upload a debug log
                 if xbmc.getCondVisibility( "System.HasAddon( script.kodi.loguploader )" ):
-                    ret = xbmcgui.Dialog().yesno( ADDON.getAddonInfo( "name" ), LANGUAGE( 32092 ), LANGUAGE( 32093 ) )
+                    ret = xbmcgui.Dialog().yesno(ADDON.getAddonInfo("name"), LANGUAGE(32092) + "[CR]" + LANGUAGE(32093))
                     if ret:
                         xbmc.executebuiltin( "RunScript(script.kodi.loguploader)" )
                 else:
-                    xbmcgui.Dialog().ok( ADDON.getAddonInfo( "name" ), LANGUAGE( 32092 ), LANGUAGE( 32094 ) )
+                    xbmcgui.Dialog().ok(ADDON.getAddonInfo("name"), LANGUAGE(32092 ) + "[CR]" + LANGUAGE(32094))
 
             else:
                 # Enable any debug logging needed
@@ -129,7 +126,7 @@ class XMLFunctions():
                 enabledSystemDebug = False
                 enabledScriptDebug = False
 
-                if ('result' in json_response) and ('settings' in json_response['result']) and (json_response['result']['settings'] is not None):
+                if json_response in ['result'] and json_response['settings'] in ['result'] and json_response['result']['settings'] is not None:
                     for item in json_response['result']['settings']:
                         if item["id"] == "debug.showloginfo":
                             if item["value"] == False:
@@ -146,11 +143,11 @@ class XMLFunctions():
                 else:
                     # Offer to upload a debug log
                     if xbmc.getCondVisibility( "System.HasAddon( script.kodi.loguploader )" ):
-                        ret = xbmcgui.Dialog().yesno( ADDON.getAddonInfo( "name" ), LANGUAGE( 32092 ), LANGUAGE( 32093 ) )
+                        ret = xbmcgui.Dialog().yesno(ADDON.getAddonInfo("name"), LANGUAGE(32092) + "[CR]" + LANGUAGE(32093))
                         if ret:
                             xbmc.executebuiltin( "RunScript(script.kodi.loguploader)" )
                     else:
-                        xbmcgui.Dialog().ok( ADDON.getAddonInfo( "name" ), LANGUAGE( 32092 ), LANGUAGE( 32094 ) )
+                        xbmcgui.Dialog().ok(ADDON.getAddonInfo("name"), LANGUAGE(32092) + "[CR]" + LANGUAGE(32094))
 
     def shouldwerun( self, profilelist ):
         try:
@@ -299,13 +296,13 @@ class XMLFunctions():
 
     def writexml( self, profilelist, mainmenuID, groups, numLevels, buildMode, progress, options, minitems ):
         # Reset the hashlist, add the profile list and script version
-        hashlist.list = []
-        hashlist.list.append( ["::PROFILELIST::", profilelist] )
-        hashlist.list.append( ["::SCRIPTVER::", ADDONVERSION] )
-        hashlist.list.append( ["::XBMCVER::", KODIVERSION] )
-        hashlist.list.append( ["::HIDEPVR::",  ADDON.getSetting( "donthidepvr" )] )
-        hashlist.list.append( ["::SHARED::", ADDON.getSetting( "shared_menu" )] )
-        hashlist.list.append( ["::SKINDIR::", xbmc.getSkinDir()] )
+        hashlist = []
+        hashlist.append( ["::PROFILELIST::", profilelist] )
+        hashlist.append( ["::SCRIPTVER::", ADDONVERSION] )
+        hashlist.append( ["::XBMCVER::", KODIVERSION] )
+        hashlist.append( ["::HIDEPVR::",  ADDON.getSetting( "donthidepvr" )] )
+        hashlist.append( ["::SHARED::", ADDON.getSetting( "shared_menu" )] )
+        hashlist.append( ["::SKINDIR::", xbmc.getSkinDir()] )
 
         # Clear any skin settings for backgrounds and widgets
         DATA._reset_backgroundandwidgets()
@@ -384,7 +381,7 @@ class XMLFunctions():
             if groups == "" or groups.split( "|" )[0] == "mainmenu":
                 # Set a skinstring that marks that we're providing the whole menu
                 xbmc.executebuiltin( "Skin.SetBool(SkinShortcuts-FullMenu)" )
-                hashlist.list.append( ["::FULLMENU::", "True"] )
+                hashlist.append( ["::FULLMENU::", "True"] )
                 for node in DATA._get_shortcuts( "mainmenu", None, True, profile[0] ).findall( "shortcut" ):
                     menuitems.append( node )
                     submenuItems.append( node )
@@ -392,7 +389,7 @@ class XMLFunctions():
             else:
                 # Clear any skinstring marking that we're providing the whole menu
                 xbmc.executebuiltin( "Skin.Reset(SkinShortcuts-FullMenu)" )
-                hashlist.list.append( ["::FULLMENU::", "False"] )
+                hashlist.append( ["::FULLMENU::", "False"] )
 
             # If building specific groups, split them into the menuitems list
             count = 0
@@ -439,7 +436,7 @@ class XMLFunctions():
                     # Remove any template-only properties
                     otherProperties, requires, templateOnly = DATA._getPropertyRequires()
                     for key in otherProperties:
-                        if key in allProps.keys() and key in templateOnly:
+                        if key in list(allProps.keys()) and key in templateOnly:
                             # This key is template-only
                             menuitem.remove( allProps[ key ] )
                             allProps.pop( key )
@@ -535,12 +532,12 @@ class XMLFunctions():
                     if buildMode == "single" and not len( submenuitems ) == 0 and not isinstance( item, str ):
                         for onclickelement in mainmenuItemB.findall( "onclick" ):
                             if "condition" in onclickelement.attrib:
-                                onclickelement.set( "condition", "%s(Window(10000).Property(submenuVisibility),%s) + [%s]" %( STRINGCOMPARE, DATA.slugify( submenuVisibilityName, convertInteger=True ), onclickelement.attrib.get( "condition" ) ) )
+                                onclickelement.set("condition", "String.IsEqual(Window(10000).Property(submenuVisibility),%s) + [%s]" %(DATA.slugify(submenuVisibilityName, convertInteger=True), onclickelement.attrib.get("condition")))
                                 newonclick = xmltree.SubElement( mainmenuItemB, "onclick" )
                                 newonclick.text = "SetProperty(submenuVisibility," + DATA.slugify( submenuVisibilityName, convertInteger=True ) + ",10000)"
                                 newonclick.set( "condition", onclickelement.attrib.get( "condition" ) )
                             else:
-                                onclickelement.set( "condition", "%s(Window(10000).Property(submenuVisibility),%s)" %( STRINGCOMPARE, DATA.slugify( submenuVisibilityName, convertInteger=True ) ) )
+                                onclickelement.set("condition", "String.IsEqual(Window(10000).Property(submenuVisibility),%s)" %(DATA.slugify(submenuVisibilityName, convertInteger=True)))
                                 newonclick = xmltree.SubElement( mainmenuItemB, "onclick" )
                                 newonclick.text = "SetProperty(submenuVisibility," + DATA.slugify( submenuVisibilityName, convertInteger=True ) + ",10000)"
 
@@ -560,7 +557,7 @@ class XMLFunctions():
                         # Remove any template-only properties
                         otherProperties, requires, templateOnly = DATA._getPropertyRequires()
                         for key in otherProperties:
-                            if key in allProps.keys() and key in templateOnly:
+                            if key in list(allProps.keys()) and key in templateOnly:
                                 # This key is template-only
                                 menuitem.remove( allProps[ key ] )
                                 allProps.pop( key )
@@ -573,7 +570,7 @@ class XMLFunctions():
                             justmenuTreeA.append( menuitem )
 
                             visibilityElement = menuitemCopy.find( "visible" )
-                            visibilityElement.text = "[%s] + %s" %( visibilityElement.text, "%s(Window(10000).Property(submenuVisibility),%s)" %( STRINGCOMPARE, DATA.slugify( submenuVisibilityName, convertInteger=True ) ) )
+                            visibilityElement.text = "[%s] + %s" %(visibilityElement.text, "String.IsEqual(Window(10000).Property(submenuVisibility),%s)" %(DATA.slugify(submenuVisibilityName, convertInteger=True )))
                             justmenuTreeB.append( menuitemCopy )
 
                         if buildMode == "single" and not isinstance( item, str ):
@@ -586,7 +583,7 @@ class XMLFunctions():
 
                         menuitemCopy = Template.copy_tree( menuitem )
                         visibilityElement = menuitemCopy.find( "visible" )
-                        visibilityElement.text = "[%s] + %s" %( visibilityElement.text, "%s(Container(%s).ListItem.Property(submenuVisibility),%s)" %( STRINGCOMPARE, mainmenuID, DATA.slugify( submenuVisibilityName, convertInteger=True ) ) )
+                        visibilityElement.text = "[%s] + %s" %(visibilityElement.text, "String.IsEqual(Container(%s).ListItem.Property(submenuVisibility),%s)" %(mainmenuID, DATA.slugify( submenuVisibilityName, convertInteger=True)))
                         submenuTree.append( menuitemCopy )
                     if len( submenuitems ) == 0 and "noGroups" not in options:
                         # There aren't any submenu items, so add a 'description' element to the group includes
@@ -600,7 +597,7 @@ class XMLFunctions():
                     buildOthers = False
                     if item in submenuItems:
                         buildOthers = True
-                    Template.parseItems( "submenu", count, templateSubMenuItems, profile[ 2 ], profile[ 1 ], "%s(Container(%s).ListItem.Property(submenuVisibility),%s)" %( STRINGCOMPARE, mainmenuID, DATA.slugify( submenuVisibilityName, convertInteger=True )  ), item, None, buildOthers, mainmenuitems = templateCurrentMainMenuItem )
+                    Template.parseItems("submenu", count, templateSubMenuItems, profile[2], profile[1], "String.IsEqual(Container(%s).ListItem.Property(submenuVisibility),%s)" %(mainmenuID, DATA.slugify(submenuVisibilityName, convertInteger=True)), item, None, buildOthers, mainmenuitems = templateCurrentMainMenuItem)
 
                     count += 1
 
@@ -633,7 +630,7 @@ class XMLFunctions():
                         else:
                             xbmc.executebuiltin( "Skin.Reset(%s)" %( checkForShortcut[ 1 ] ) )
                     # Save this to the hashes file, so we can set it on profile changes
-                    hashlist.list.append( [ "::SKINBOOL::", [ profile[ 1 ], checkForShortcut[ 1 ], checkForShortcut[ 2 ] ] ] )
+                    hashlist.append( [ "::SKINBOOL::", [ profile[ 1 ], checkForShortcut[ 1 ], checkForShortcut[ 2 ] ] ] )
 
             # Build the template for the main menu
             Template.parseItems( "mainmenu", 0, templateMainMenuItems, profile[ 2 ], profile[ 1 ], "", "", mainmenuID, True )
@@ -683,11 +680,11 @@ class XMLFunctions():
 
         # Save the hashes
         # Append the skin version to the hashlist
-        hashlist.list.append( ["::SKINVER::", skinVersion] )
+        hashlist.append( ["::SKINVER::", skinVersion] )
 
         # Save the hashes
         file = xbmcvfs.File( os.path.join( MASTERPATH , xbmc.getSkinDir() + ".hash" ), "w" )
-        file.write( repr( hashlist.list ) )
+        file.write(repr(hashlist))
         file.close()
 
 
@@ -724,10 +721,10 @@ class XMLFunctions():
         if icon is None:
             xmltree.SubElement( newelement, "icon" ).text = "DefaultShortcut.png"
         else:
-            xmltree.SubElement( newelement, "icon" ).text = try_decode( icon.text )
+            xmltree.SubElement(newelement, "icon").text = icon.text
         thumb = item.find( "thumb" )
         if thumb is not None:
-            xmltree.SubElement( newelement, "thumb" ).text = try_decode( item.find( "thumb" ).text )
+            xmltree.SubElement(newelement,"thumb").text = item.find("thumb").text
 
         # labelID and defaultID
         labelID = xmltree.SubElement( newelement, "property" )
@@ -761,7 +758,7 @@ class XMLFunctions():
             for property in properties:
                 if property[0] == "node.visible":
                     visibleProperty = xmltree.SubElement( newelement, "visible" )
-                    visibleProperty.text = try_decode( property[1] )
+                    visibleProperty.text = property[1]
                 else:
                     additionalproperty = xmltree.SubElement( newelement, "property" )
                     additionalproperty.set( "name", property[0] )
@@ -776,7 +773,10 @@ class XMLFunctions():
                             xbmc.executebuiltin( "Skin.SetString(skinshortcuts-widget-" + str( self.widgetCount ) + "," + property[ 1 ] + ")" )
                             self.widgetCount += 1
                     elif property[0] == "background":
-                        xbmc.executebuiltin( "Skin.SetBool(skinshortcuts-background-" + property[1] + ")" )
+                        try:
+                            xbmc.executebuiltin( "Skin.SetBool(skinshortcuts-background-" + property[1] + ")" )
+                        except UnicodeEncodeError:
+                            xbmc.executebuiltin( "Skin.SetBool(skinshortcuts-background-" + property[1].encode('utf-8') + ")" )
 
                     # If this is the main menu, and we're cloning widgets, backgrounds or properties...
                     if groupName == "mainmenu":
@@ -795,14 +795,14 @@ class XMLFunctions():
                     if property[ 0 ] == "widgetPlaylist":
                         additionalproperty = xmltree.SubElement( newelement, "property" )
                         additionalproperty.set( "name", "widgetPath" )
-                        additionalproperty.text = try_decode( property[1] )
+                        additionalproperty.text = property[1]
 
         # Get fallback properties, property requirements, templateOnly value of properties
         fallbackProperties, fallbacks = DATA._getCustomPropertyFallbacks( groupName )
 
         # Add fallback properties
         for key in fallbackProperties:
-            if key not in allProps.keys():
+            if key not in list(allProps.keys()):
                 # Check whether we have a fallback for the value
                 for propertyMatch in fallbacks[ key ]:
                     matches = False
@@ -828,7 +828,7 @@ class XMLFunctions():
 
         # Remove any properties whose requirements haven't been met
         for key in otherProperties:
-            if key in allProps.keys() and key in requires.keys() and requires[ key ] not in allProps.keys():
+            if key in list(allProps.keys()) and key in list(requires.keys()) and requires[key] not in list(allProps.keys()):
                 # This properties requirements aren't met
                 newelement.remove( allProps[ key ] )
                 allProps.pop( key )
@@ -881,7 +881,7 @@ class XMLFunctions():
                 onclickelement.text = onclick.text
 
             # Also add it as a path property
-            if not self.propertyExists( "path", newelement ) and not "path" in allProps.keys():
+            if not self.propertyExists("path", newelement) and not "path" in list(allProps.keys()):
                 # we only add the path property if there isn't already one in the list because it has to be unique in Kodi lists
                 pathelement = xmltree.SubElement( newelement, "property" )
                 pathelement.set( "name", "path" )
@@ -889,7 +889,7 @@ class XMLFunctions():
                 allProps[ "path" ] = pathelement
 
             # Get 'list' property (the action property of an ActivateWindow shortcut)
-            if not self.propertyExists( "list", newelement ) and not "list" in allProps.keys():
+            if not self.propertyExists("list", newelement) and not "list" in list(allProps.keys()):
                 # we only add the list property if there isn't already one in the list because it has to be unique in Kodi lists
                 listElement = xmltree.SubElement( newelement, "property" )
                 listElement.set( "name", "list" )
@@ -940,7 +940,7 @@ class XMLFunctions():
         # Group name
         group = xmltree.SubElement( newelement, "property" )
         group.set( "name", "group" )
-        group.text = try_decode( groupName )
+        group.text = groupName
         allProps[ "group" ] = group
 
         # If this isn't the main menu, and we're cloning widgets or backgrounds...
@@ -949,7 +949,7 @@ class XMLFunctions():
                 for key in self.MAINWIDGET:
                     additionalproperty = xmltree.SubElement( newelement, "property" )
                     additionalproperty.set( "name", key )
-                    additionalproperty.text = try_decode( self.MAINWIDGET[ key ] )
+                    additionalproperty.text = self.MAINWIDGET[key]
                     allProps[ key ] = additionalproperty
             if "clonebackgrounds" in options and len( self.MAINBACKGROUND ) is not 0:
                 for key in self.MAINBACKGROUND:
