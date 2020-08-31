@@ -1217,8 +1217,8 @@ class DataFunctions():
         text = unidecode(text)
 
         # text back to unicode
-            if type(text) != str:
-                text = str(text, 'utf-8', 'ignore')
+        if type(text) != str:
+            text = str(text, 'utf-8', 'ignore')
 
         # character entity reference
         if entities:
