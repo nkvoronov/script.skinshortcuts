@@ -706,12 +706,12 @@ class LibraryFunctions():
             prefix = "library://music"
             action = "||AUDIO||"
 
-        rootdir = os.path.join( xbmc.translatePath( "special://profile" ), "library", library )
+        rootdir = os.path.join(xbmc.translatePath("special://profile"), "library", library)
         if type == "custom":
             log( "Listing custom %s nodes..." %( library ) )
         else:
-            rootdir = os.path.join( xbmc.translatePath( "special://xbmc" ), "system", "library", library )
-            log( "Listing default %s nodes..." %( library ) )
+            rootdir = os.path.join(xbmc.translatePath("special://xbmc"), "system", "library", library)
+            log("Listing default %s nodes..." %(library))
 
         nodes = NODE.get_nodes( rootdir, prefix )
         if nodes == False or len( nodes ) == 0:
@@ -961,7 +961,7 @@ class LibraryFunctions():
                 try:
                     playlist = file['path']
                     label = file['label']
-                    playlistfile = xbmc.translatePath( playlist )
+                    playlistfile = xbmc.translatePath(playlist)
                     mediaLibrary = path[2]
 
                     if playlist.endswith( '.xsp' ):
@@ -986,7 +986,7 @@ class LibraryFunctions():
                                 # Create a list item
                                 listitem = self._create(["::PLAYLIST>%s::" %( mediaLibrary ), name, path[1], {"icon": "DefaultPlaylist.png"} ])
                                 listitem.setProperty( "action-play", "PlayMedia(" + playlist + ")" )
-                                listitem.setProperty( "action-show", "ActivateWindow(" + mediaLibrary + "," + playlist + ",return)" )
+                                listitem.setProperty("action-show", "ActivateWindow(" + mediaLibrary + "," + playlist + ",return)")
                                 listitem.setProperty( "action-party", "PlayerControl(PartyMode(%s))" %( playlist ) )
 
                                 # Add widget information
@@ -1010,7 +1010,7 @@ class LibraryFunctions():
                         name = label
                         listitem = self._create( ["::PLAYLIST>%s::" %( path[2] ), name, path[1], {"icon": "DefaultPlaylist.png"} ] )
                         listitem.setProperty( "action-play", "PlayMedia(" + playlist + ")" )
-                        listitem.setProperty( "action-show", "ActivateWindow(%s,%s,return)" %( path[2], playlist ) )
+                        listitem.setProperty("action-show", "ActivateWindow(%s,%s,return)" %(path[2], playlist))
                         listitem.setProperty( "action-party", "PlayerControl(PartyMode(%s))" %( playlist ) )
 
                         # Add widget information
@@ -1047,7 +1047,7 @@ class LibraryFunctions():
             for file in kodiwalk( path ):
                 playlist = file['path']
                 label = file['label']
-                playlistfile = xbmc.translatePath( playlist )
+                playlistfile = xbmc.translatePath(playlist)
 
                 if playlist.endswith( '-randomversion.xsp' ):
                     contents = xbmcvfs.File(playlistfile, 'r')
@@ -1058,7 +1058,7 @@ class LibraryFunctions():
 
                             # Save it for the widgets list
                             # TO-DO - Localize display name
-                            returnPlaylists.append( [playlist, "(Source) " + name, name] )
+                            returnPlaylists.append([playlist, "(Source) " + name, name])
 
                             count += 1
                             break
@@ -1075,7 +1075,7 @@ class LibraryFunctions():
         listitems = []
         listing = None
 
-        fav_file = xbmc.translatePath( 'special://profile/favourites.xml' )
+        fav_file = xbmc.translatePath('special://profile/favourites.xml')
         if xbmcvfs.exists( fav_file ):
             doc = parse( fav_file )
             listing = doc.documentElement.getElementsByTagName( 'favourite' )
@@ -1171,8 +1171,8 @@ class LibraryFunctions():
                                 if content in contentData:
                                     # Add it as a plugin in the relevant category
                                     otherItem = self._create([path, item['name'] + "  >", contentData[ content ][ 0 ], {"icon": "DefaultAddon.png", "thumb": thumb} ])
-                                    otherItem.setProperty( "path", "||BROWSE||" + item['addonid'] )
-                                    otherItem.setProperty( "action", "RunAddOn(" + item['addonid'] + ")" )
+                                    otherItem.setProperty("path", "||BROWSE||" + item['addonid'])
+                                    otherItem.setProperty("action", "RunAddOn(" + item['addonid'] + ")")
                                     contentData[ content ][ 1 ][ item[ "name" ] ] = otherItem
                                     # If it's executable, add it to our seperate program plugins for widgets
                                     if content == "executable":
@@ -1333,7 +1333,7 @@ class LibraryFunctions():
         else:
             # This isn't the root, create a link to go up the heirachy
             listitem = self._create( [ "::BACK::", "..", "", {"icon":"DefaultFolderBack.png"} ] )
-        listings.append( self._get_icon_overrides( tree, listitem, "" ) )
+        listings.append( self._get_icon_overrides( tree, listitem, ""))
 
 
         # Default action - create shortcut (do not show when we're looking at the special entries from skinhelper service)
@@ -1941,7 +1941,7 @@ class LibraryFunctions():
 
         if group != "":
             # Add a link to go 'up'
-            additem = self._create( ["::BACK::", "..", "", {"icon": "DefaultFolderBack.png"}] )
+            additem = self._create( ["::BACK::", "..", "", {"icon": "DefaultFolderBack.png"}])
             availableShortcuts.insert( 0, self._get_icon_overrides( DATA._get_overrides_skin(), additem, "" ) )
 
         # Show select dialog

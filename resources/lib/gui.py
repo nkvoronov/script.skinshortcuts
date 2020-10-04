@@ -22,9 +22,9 @@ ADDON        = xbmcaddon.Addon()
 ADDONID      = ADDON.getAddonInfo('id')
 CWD          = ADDON.getAddonInfo('path')
 LANGUAGE     = ADDON.getLocalizedString
-DATAPATH     = os.path.join( xbmc.translatePath( "special://profile/addon_data/" ), ADDONID )
-SKINPATH     = xbmc.translatePath( "special://skin/shortcuts/" )
-DEFAULTPATH  = xbmc.translatePath( os.path.join( CWD, 'resources', 'shortcuts') )
+DATAPATH     = os.path.join(xbmc.translatePath("special://profile/addon_data/"), ADDONID)
+SKINPATH     = xbmc.translatePath("special://skin/shortcuts/")
+DEFAULTPATH  = xbmc.translatePath(os.path.join(CWD, 'resources', 'shortcuts'))
 
 ACTION_CANCEL_DIALOG = ( 9, 10, 92, 216, 247, 257, 275, 61467, 61448, )
 ACTION_CONTEXT_MENU = ( 117, )
@@ -36,8 +36,8 @@ def log(txt):
     if ADDON.getSetting( "enable_logging" ) == "true":
         if not isinstance (txt,str):
             txt = txt.decode('utf-8')
-            message = u'%s: %s' % (ADDONID, txt)
-            xbmc.log(msg=message, level=xbmc.LOGDEBUG)
+        message = u'%s: %s' % (ADDONID, txt)
+        xbmc.log(msg=message, level=xbmc.LOGDEBUG)
 
 def is_hebrew(text):
     for chr in text:
@@ -342,7 +342,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         action = item.find( "action" ).text
         self._add_additionalproperty( listitem, "translatedPath", action )
         if "special://skin/" in action:
-            translate = xbmc.translatePath( "special://skin/" )
+            translate = xbmc.translatePath("special://skin/")
             action = action.replace( "special://skin/", translate )
 
         listitem.setProperty( "path", action )
@@ -797,7 +797,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         currentProperties = []
 
         # Get previously loaded properties
-        path = os.path.join( DATAPATH , xbmc.getSkinDir() + ".properties" )
+        path = os.path.join(DATAPATH, xbmc.getSkinDir() + ".properties")
         if xbmcvfs.exists( path ):
             # The properties file exists, load from it
             listProperties = eval( xbmcvfs.File( path ).read() )
@@ -820,8 +820,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     # Additional menu
                     groupName, groupValue = property[ 0 ].rsplit( ".", 1 )
                     if groupName in list(labelIDChanges.keys()) and int(groupValue) in range(1, 6):
-                        property[0] = "%s.%s" %( labelIDChanges[ groupName ], groupValue )
-                saveData.append( property )
+                        property[0] = "%s.%s" %(labelIDChanges[groupName], groupValue)
+                saveData.append(property)
 
         # Add all the properties we've been passed
         for property in properties:
@@ -841,7 +841,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
 
         # Try to save the file
         try:
-            f = xbmcvfs.File( os.path.join( DATAPATH , xbmc.getSkinDir() + ".properties" ), 'w' )
+            f = xbmcvfs.File(os.path.join(DATAPATH, xbmc.getSkinDir() + ".properties"), 'w')
             f.write( repr( saveData ).replace( "],", "],\n" ) )
             f.close()
         except:

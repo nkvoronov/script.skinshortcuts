@@ -48,7 +48,7 @@ class XMLFunctions():
         xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-isrunning", "True" )
 
         # Get a list of profiles
-        fav_file = xbmc.translatePath( 'special://userdata/profiles.xml' )
+        fav_file = xbmc.translatePath('special://userdata/profiles.xml')
         tree = None
         if xbmcvfs.exists( fav_file ):
             f = xbmcvfs.File( fav_file )
@@ -60,13 +60,13 @@ class XMLFunctions():
             for profile in profiles:
                 name = profile.find( "name" ).text
                 dir = profile.find( "directory" ).text
-                log( "Profile found: " + name + " (" + dir + ")" )
+                log("Profile found: " + name + " (" + dir + ")")
 
                 # Localise the directory
                 if "://" in dir:
-                    dir = xbmc.translatePath( dir )
+                    dir = xbmc.translatePath(dir)
                 # Base if off of the master profile
-                dir = xbmc.translatePath( os.path.join( "special://masterprofile", dir ) )
+                dir = xbmc.translatePath(os.path.join("special://masterprofile", dir))
                 profilelist.append([dir, "String.IsEqual(System.ProfileName,%s)" %(name), name])
 
         else:
@@ -111,10 +111,10 @@ class XMLFunctions():
                     ADDON.setSetting( "enable_logging", "false" )
 
                 # Offer to upload a debug log
-                if xbmc.getCondVisibility( "System.HasAddon( script.kodi.loguploader )" ):
+                if xbmc.getCondVisibility("System.HasAddon(script.kodi.loguploader)"):
                     ret = xbmcgui.Dialog().yesno(ADDON.getAddonInfo("name"), LANGUAGE(32092) + "[CR]" + LANGUAGE(32093))
                     if ret:
-                        xbmc.executebuiltin( "RunScript(script.kodi.loguploader)" )
+                        xbmc.executebuiltin("RunScript(script.kodi.loguploader)")
                 else:
                     xbmcgui.Dialog().ok(ADDON.getAddonInfo("name"), LANGUAGE(32092 ) + "[CR]" + LANGUAGE(32094))
 
@@ -145,7 +145,7 @@ class XMLFunctions():
                     if xbmc.getCondVisibility( "System.HasAddon( script.kodi.loguploader )" ):
                         ret = xbmcgui.Dialog().yesno(ADDON.getAddonInfo("name"), LANGUAGE(32092) + "[CR]" + LANGUAGE(32093))
                         if ret:
-                            xbmc.executebuiltin( "RunScript(script.kodi.loguploader)" )
+                            xbmc.executebuiltin("RunScript(script.kodi.loguploader)")
                     else:
                         xbmcgui.Dialog().ok(ADDON.getAddonInfo("name"), LANGUAGE(32092) + "[CR]" + LANGUAGE(32094))
 
@@ -163,7 +163,7 @@ class XMLFunctions():
         xbmc.executebuiltin( "Skin.SetString(skinshortcuts-sharedmenu,%s)" %( ADDON.getSetting( "shared_menu" ) ) )
 
         # Get the skins addon.xml file
-        addonpath = xbmc.translatePath( os.path.join( "special://skin/", 'addon.xml') )
+        addonpath = xbmc.translatePath(os.path.join("special://skin/", 'addon.xml'))
         addon = xmltree.parse( addonpath )
         extensionpoints = addon.findall( "extension" )
         paths = []
@@ -177,7 +177,7 @@ class XMLFunctions():
             if extensionpoint.attrib.get( "point" ) == "xbmc.gui.skin":
                 resolutions = extensionpoint.findall( "res" )
                 for resolution in resolutions:
-                    path = xbmc.translatePath( os.path.join( "special://skin/", resolution.attrib.get( "folder" ), "script-skinshortcuts-includes.xml") )
+                    path = xbmc.translatePath(os.path.join("special://skin/", resolution.attrib.get( "folder" ), "script-skinshortcuts-includes.xml"))
                     paths.append( path )
                     skinpaths.append( path )
 
@@ -529,7 +529,7 @@ class XMLFunctions():
                                 pass
 
                     # If we're building a single menu, update the onclicks of the main menu
-                    if buildMode == "single" and not len( submenuitems ) == 0 and not isinstance( item, str ):
+                    if buildMode == "single" and not len(submenuitems) == 0 and not isinstance(item, str):
                         for onclickelement in mainmenuItemB.findall( "onclick" ):
                             if "condition" in onclickelement.attrib:
                                 onclickelement.set("condition", "String.IsEqual(Window(10000).Property(submenuVisibility),%s) + [%s]" %(DATA.slugify(submenuVisibilityName, convertInteger=True), onclickelement.attrib.get("condition")))
@@ -573,7 +573,7 @@ class XMLFunctions():
                             visibilityElement.text = "[%s] + %s" %(visibilityElement.text, "String.IsEqual(Window(10000).Property(submenuVisibility),%s)" %(DATA.slugify(submenuVisibilityName, convertInteger=True )))
                             justmenuTreeB.append( menuitemCopy )
 
-                        if buildMode == "single" and not isinstance( item, str ):
+                        if buildMode == "single" and not isinstance(item, str):
                             # Add the property 'submenuVisibility'
                             allmenuTreeCopy = Template.copy_tree( menuitemCopy )
                             submenuVisibility = xmltree.SubElement( allmenuTreeCopy, "property" )
@@ -653,7 +653,7 @@ class XMLFunctions():
         progress.update( 100, message = LANGUAGE( 32098 ) )
 
         # Get the skins addon.xml file
-        addonpath = xbmc.translatePath( os.path.join( "special://skin/", 'addon.xml') )
+        addonpath = xbmc.translatePath(os.path.join("special://skin/", 'addon.xml'))
         addon = xmltree.parse( addonpath )
         extensionpoints = addon.findall( "extension" )
         paths = []
@@ -661,7 +661,7 @@ class XMLFunctions():
             if extensionpoint.attrib.get( "point" ) == "xbmc.gui.skin":
                 resolutions = extensionpoint.findall( "res" )
                 for resolution in resolutions:
-                    path = xbmc.translatePath( os.path.join( self.skinDir, resolution.attrib.get( "folder" ), "script-skinshortcuts-includes.xml") )
+                    path = xbmc.translatePath(os.path.join(self.skinDir, resolution.attrib.get("folder"), "script-skinshortcuts-includes.xml"))
                     paths.append( path )
         skinVersion = addon.getroot().attrib.get( "version" )
 
@@ -674,7 +674,7 @@ class XMLFunctions():
             hasher = hashlib.md5()
             hasher.update(xbmcvfs.File(path).read().encode("utf-8"))
 
-            with open(path, "r+", encoding='utf-8') as f:
+            with open(path, "r+", encoding="utf-8") as f:
                 DATA._save_hash( path, f.read() )
                 f.close()
 
@@ -761,7 +761,7 @@ class XMLFunctions():
                     visibleProperty.text = property[1]
                 else:
                     additionalproperty = xmltree.SubElement( newelement, "property" )
-                    additionalproperty.set( "name", property[0] )
+                    additionalproperty.set("name", property[0])
                     additionalproperty.text = property[1]
                     allProps[ property[ 0 ] ] = additionalproperty
 
@@ -818,7 +818,7 @@ class XMLFunctions():
 
                     if matches:
                         additionalproperty = xmltree.SubElement( newelement, "property" )
-                        additionalproperty.set( "name", key )
+                        additionalproperty.set("name", key)
                         additionalproperty.text = propertyMatch[ 0 ]
                         allProps[ key ] = additionalproperty
                         break

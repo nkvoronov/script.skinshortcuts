@@ -8,16 +8,16 @@ import simpleeval
 import operator, ast
 from simpleeval import simple_eval
 
-ADDON        = xbmcaddon.Addon()
-ADDONID      = ADDON.getAddonInfo('id')
-SKINPATH     = xbmc.translatePath( "special://skin/shortcuts/" )
+ADDON    = xbmcaddon.Addon()
+ADDONID  = ADDON.getAddonInfo('id')
+SKINPATH = xbmc.translatePath("special://skin/shortcuts/")
 
 hashlist = []
 
 def log(txt):
     if ADDON.getSetting( "enable_logging" ) == "true":
-            message = u'%s: %s' % (ADDONID, txt)
-            xbmc.log(msg=message, level=xbmc.LOGDEBUG)
+        message = u'%s: %s' % (ADDONID, txt)
+        xbmc.log(msg=message, level=xbmc.LOGDEBUG)
 
 class Template():
     def __init__( self ):

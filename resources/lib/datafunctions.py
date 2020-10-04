@@ -19,8 +19,8 @@ KODIVERSION  = xbmc.getInfoLabel( "System.BuildVersion" ).split(".")[0]
 LANGUAGE     = ADDON.getLocalizedString
 CWD          = ADDON.getAddonInfo('path')
 DATAPATH     = os.path.join(xbmc.translatePath("special://profile/"), "addon_data", ADDONID)
-SKINPATH     = xbmc.translatePath( "special://skin/shortcuts/" )
-DEFAULTPATH  = xbmc.translatePath( os.path.join( CWD, 'resources', 'shortcuts') )
+SKINPATH     = xbmc.translatePath("special://skin/shortcuts/")
+DEFAULTPATH  = xbmc.translatePath(os.path.join(CWD, 'resources', 'shortcuts'))
 
 hashlist = []
 
@@ -39,8 +39,8 @@ REMOVE_REXP = re.compile('-{2,}')
 
 def log(txt):
     if ADDON.getSetting( "enable_logging" ) == "true":
-            message = u'%s: %s' % (ADDONID, txt)
-            xbmc.log(msg=message, level=xbmc.LOGDEBUG)
+        message = u'%s: %s' % (ADDONID, txt)
+        xbmc.log(msg=message, level=xbmc.LOGDEBUG)
 
 class DataFunctions():
     def __init__(self):
@@ -129,7 +129,7 @@ class DataFunctions():
         log( "Loading shortcuts for group " + group )
 
         if profileDir is None:
-            profileDir = xbmc.translatePath( "special://profile/" )
+            profileDir = xbmc.translatePath("special://profile/")
 
         userShortcuts = os.path.join( profileDir, "addon_data", ADDONID, self.slugify( group, True, isSubLevel = isSubLevel ) + ".DATA.xml" )
         skinShortcuts = os.path.join( SKINPATH , self.slugify( group ) + ".DATA.xml")
@@ -543,7 +543,7 @@ class DataFunctions():
         self.currentProperties = []
         self.defaultProperties = []
 
-        path = os.path.join( profileDir, "addon_data", ADDONID, xbmc.getSkinDir() + ".properties" )
+        path = os.path.join(profileDir, "addon_data", ADDONID, xbmc.getSkinDir() + ".properties")
         if xbmcvfs.exists( path ):
             # The properties file exists, load from it
             try:
@@ -872,9 +872,9 @@ class DataFunctions():
         elif action.startswith( "activatewindowandfocus(mypvr" ) or action.startswith( "playpvr" ) and ADDON.getSetting( "donthidepvr" ) == "false":
             return "PVR.HasTVChannels"
         elif action.startswith( "activatewindow(tv" ) and ADDON.getSetting( "donthidepvr" ) == "false":
-                return "System.HasPVRAddon"
+            return "System.HasPVRAddon"
         elif action.startswith( "activatewindow(radio" ) and ADDON.getSetting( "donthidepvr" ) == "false":
-                return "System.HasPVRAddon"
+            return "System.HasPVRAddon"
         elif action.startswith( "activatewindow(videos,movie" ):
             return "Library.HasContent(Movies)"
         elif action.startswith( "activatewindow(videos,recentlyaddedmovies" ):
@@ -1010,7 +1010,7 @@ class DataFunctions():
             if files:
                 for file in files:
                     if file.endswith( ".hash" ) and not file.startswith( "%s-" %( xbmc.getSkinDir() ) ):
-                        canImport, skinName = self.parseHashFile( os.path.join( DATAPATH, file))
+                        canImport, skinName = self.parseHashFile(os.path.join(DATAPATH, file))
                         if canImport == True:
                             skinNames.append( skinName )
                     elif file.endswith( ".DATA.xml" ) and not file.startswith( "%s-" %( xbmc.getSkinDir() ) ):
@@ -1080,14 +1080,14 @@ class DataFunctions():
                 newFile = oldFile.replace( skinName, xbmc.getSkinDir() )
             else:
                 newFile = "%s-%s" %( xbmc.getSkinDir(), oldFile )
-            oldPath = os.path.join( DATAPATH, oldFile )
-            newPath = os.path.join( DATAPATH, newFile )
+            oldPath = os.path.join(DATAPATH, oldFile)
+            newPath = os.path.join(DATAPATH, newFile)
 
             # Copy file
             xbmcvfs.copy( oldPath, newPath )
 
         # Delete any .properties file
-        propFile = os.path.join( DATAPATH, "%s.properties" %( xbmc.getSkinDir() ) )
+        propFile = os.path.join(DATAPATH, "%s.properties" %(xbmc.getSkinDir()))
         if xbmcvfs.exists( propFile ):
             xbmcvfs.delete( propFile )
 
@@ -1303,7 +1303,7 @@ class DataFunctions():
     def upgradeAction( self, action ):
         # This function looks for actions used in a previous version of Kodi, and upgrades them to the current action
 
-        if not action.lower().startswith( "activatewindow(" ): return action
+        if not action.lower().startswith("activatewindow("): return action
 
         # Jarvis + later music windows
         if action.lower() == "activatewindow(musicfiles)":
@@ -1311,14 +1311,14 @@ class DataFunctions():
 
         if action.lower().startswith("activatewindow(musiclibrary"):
             if "," in action:
-                return "ActivateWindow(Music," + action.split( ",", 1 )[ 1 ]
+                return "ActivateWindow(Music," + action.split(",", 1)[1]
             else:
                 return "ActivateWindow(Music)"
 
         # Isengard + later video windows
-        if action.lower().startswith( "activatewindow(videolibrary"):
+        if action.lower().startswith("activatewindow(videolibrary"):
             if "," in action:
-                return "ActivateWindow(Videos," + action.split( ",", 1 )[ 1 ]
+                return "ActivateWindow(Videos," + action.split(",", 1)[1]
             else:
                 return "ActivateWindow(Videos)"
 
