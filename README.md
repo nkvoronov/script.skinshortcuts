@@ -1,23 +1,19 @@
-# Skin Shortcuts - 1.0.13
+# Skin Shortcuts - 1.1.0
+**Python 3 compatible only NO Python 2 support. IS NOT BACKWARDS COMPATIBLE!!**
 
 script.skinshortcuts was written with the intention of making user customizable shortcuts on the home page easier for skinners.
 
 
 ## What's New for Skinners
 
-#### Version 1.0.16 - git version
+#### Version 1.1.0 - git version
 
-- Basic Kodi v18 compatibility
-- Ability to specify action any control in management dialog from overrides - [Read More](./resources/docs/started/Management%20Dialog.md#custom-action-on-control)
-- Some improvements to the interactions with Skin Helper Service, including support for resource addons (see SH wiki)
+- Kodi v19 support
 
-#### Version 1.0.13 - repo version
+#### Version 1.0.17 - repo version
 
-- Skinners can now set that their skin should not use the users shared additional submenus - [Read More](./resources/docs/started/Getting%20Started.md#shared-additioanl-submenu)
-- Submenu template improvements - [Read More](./resources/docs/advanced/Templates.md#sub-menu-template)
-- Please be aware that:-
-  - Warnings on deleting a shortcut are now shown when disabling a shortcut
-  - The processing of overrides has been adjusted so that visibilityoverrides will themselves be overriden by any additional overrides which match
+- Some minor changes for Jarvis+
+- Basic support for Kodi Leia
  
 ## With Thanks - Because their names don't deserve to be at the bottom :)
 
@@ -33,13 +29,13 @@ script.skinshortcuts was written with the intention of making user customizable 
 
 [End User FAQ](./resources/docs/FAQ.md)
 
-If you have issues with using the script, your first port of call should be the End User FAQ. If your query isn't listed there, then the next place to ask for help is the [Kodi forum for the skin that you are using](http://forum.kodi.tv/forumdisplay.php?fid=67). There are a lot of very knowledgeable skinners and users who will be able to answer most questions.
+If you have issues with using the script, your first port of call should be the End User FAQ. If your query isn't listed there, then the next place to ask for help is the [Kodi forum for the skin that you are using](https://forum.kodi.tv/forumdisplay.php?fid=67). There are a lot of very knowledgeable skinners and users who will be able to answer most questions.
 
-When a question comes up that no-one in the thread can answer, the skinner may direct you to the [Skin Shortcuts thread](http://forum.kodi.tv/showthread.php?tid=178294) in the skin development for further help.
+When a question comes up that no-one in the thread can answer, the skinner may direct you to the [Skin Shortcuts thread](https://forum.kodi.tv/showthread.php?tid=178294) in the skin development for further help.
 
-If you experience an error with the script, you are welcome to ask for help directly in the Skin Shortcuts thread in the skin development forum. However, we _require_ a [debug log](http://kodi.wiki/view/Debug_log).
+If you experience an error with the script, you are welcome to ask for help directly in the Skin Shortcuts thread in the skin development forum. However, we _require_ a [debug log](https://kodi.wiki/view/Debug_log).
 
-Please note that this thread is primarily aimed at skin developers - if you haven't already asked in the revelant skins forum, included a debug log or are asking a question related to [banned add-ons](http://kodi.wiki/view/Official:Forum_rules/Banned_add-ons), you are not likely to recieve a warm welcome.
+Please note that this thread is primarily aimed at skin developers - if you haven't already asked in the revelant skins forum, included a debug log or are asking a question related to [banned add-ons](https://kodi.wiki/view/Official:Forum_rules/Banned_add-ons), you are not likely to recieve a warm welcome.
 
 ## Where To Get Help - Skinners
 
@@ -57,7 +53,7 @@ It's highly recommended to take time to read through these documents before you 
 
 If you require any assistance post on the Kodi forum and I'll do my best to assist:
 
-[http://forum.kodi.tv/showthread.php?tid=178294](http://forum.kodi.tv/showthread.php?tid=178294)
+[http://forum.kodi.tv/showthread.php?tid=178294](https://forum.kodi.tv/showthread.php?tid=178294)
 
 ## Documentation for different versions
 
