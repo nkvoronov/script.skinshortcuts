@@ -16,13 +16,6 @@ msgstr ""
 "Language: uk_UA\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
-msgctxt "Addon Description"
-msgid ""
-
-"Доповнення для обкладинок, надає простий спосіб управління списками ярликів користовуча"
-"(потрібна підтримка обкладинкою)"
-msgstr ""
-
 msgctxt "#32000"
 msgid "Add"
 msgstr "Додати"
@@ -515,10 +508,6 @@ msgid "Share menu between compatible skins"
 msgstr "Ділиться меню між сумісними обкладинками"
 
 msgctxt "#32122"
-msgid "Default widgets"
-msgstr "Віджети за замовчуванням"
-
-msgctxt "#32123"
 msgid "Enable debug logging"
 msgstr "Дозволити ведення журналу відладки"
 
@@ -534,6 +523,13 @@ msgctxt "#32232"
 msgid "grouped"
 msgstr "група"
 
+msgctxt "#32133"
+msgid "Default widgets"
+msgstr "Віджети за замовчуванням"
+
 msgctxt "#32240"
 msgid "Game Add-On"
 msgstr "Ігрове доповненя"
+
+
+

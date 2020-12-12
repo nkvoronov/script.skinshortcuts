@@ -511,10 +511,6 @@ msgid "Share menu between compatible skins"
 msgstr ""
 
 msgctxt "#32122"
-msgid "Default widgets"
-msgstr ""
-
-msgctxt "#32123"
 msgid "Enable debug logging"
 msgstr ""
 
@@ -530,6 +526,13 @@ msgctxt "#32232"
 msgid "grouped"
 msgstr ""
 
+msgctxt "#32133"
+msgid "Default widgets"
+msgstr ""
+
 msgctxt "#32240"
 msgid "Game Add-On"
 msgstr ""
+
+
+
