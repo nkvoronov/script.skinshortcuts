@@ -129,7 +129,7 @@ msgid "Change action"
 msgstr "Змінити дію"
 
 msgctxt "#32028"
-msgid "Reset shortcuts"
+msgid "Restore menu items"
 msgstr "Скинути ярлики"
 
 msgctxt "#32029"
@@ -209,7 +209,7 @@ msgid "Update audio library"
 msgstr "Оновити аудіо бібліотеку"
 
 msgctxt "#32048"
-msgid "Choose shortcut"
+msgid "Choose item for menu"
 msgstr "Вибрати ярлик"
 
 msgctxt "#32049"
